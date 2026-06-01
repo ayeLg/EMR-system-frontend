@@ -1,0 +1,107 @@
+"use client";
+
+import type { TableProps } from "antd";
+import { Descriptions, Skeleton, Tabs, Tag } from "antd";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusTag } from "@/components/ui/StatusTag";
+import { DataTable } from "@/components/common/DataTable";
+import { EmptyState } from "@/components/common/EmptyState";
+import { PATIENT_STATUS } from "@/config/enums";
+import { BLOOD_TYPE_OPTIONS, GENDER_OPTIONS } from "../options";
+import { usePatient } from "../hooks/usePatient";
+import type { EncounterSummary, PatientAllergy } from "../types";
+
+const SEVERITY_COLOR: Record<PatientAllergy["severity"], string> = {
+  MILD: "green",
+  MODERATE: "orange",
+  SEVERE: "red",
+  FATAL: "red",
+};
+
+function label(options: { label: string; value: string }[], value: string) {
+  return options.find((o) => o.value === value)?.label ?? value;
+}
+
+export function PatientDetailView({ id }: { id: string }) {
+  const { data, isLoading } = usePatient(id);
+
+  if (isLoading) return <Skeleton active paragraph={{ rows: 8 }} />;
+  if (!data) return <EmptyState description="Patient not found" />;
+
+  const allergyColumns: TableProps<PatientAllergy>["columns"] = [
+    { title: "Allergen", dataIndex: "allergenName", key: "allergenName" },
+    { title: "Type", dataIndex: "allergenType", key: "allergenType" },
+    {
+      title: "Severity",
+      key: "severity",
+      render: (_, r) => <Tag color={SEVERITY_COLOR[r.severity]}>{r.severity}</Tag>,
+    },
+    { title: "Reaction", dataIndex: "reaction", key: "reaction" },
+  ];
+
+  const encounterColumns: TableProps<EncounterSummary>["columns"] = [
+    { title: "Encounter", dataIndex: "encounterNo", key: "encounterNo" },
+    { title: "Date", dataIndex: "date", key: "date" },
+    { title: "Type", dataIndex: "type", key: "type" },
+    { title: "Doctor", dataIndex: "doctor", key: "doctor" },
+    { title: "Status", dataIndex: "status", key: "status" },
+  ];
+
+  return (
+    <>
+      <PageHeader
+        title={data.fullName}
+        subtitle={data.mrn}
+        actions={
+          <StatusTag
+            labelKey={PATIENT_STATUS[data.status].labelKey}
+            color={PATIENT_STATUS[data.status].color}
+          />
+        }
+      />
+      <Tabs
+        items={[
+          {
+            key: "demographics",
+            label: "Demographics",
+            children: (
+              <Descriptions bordered column={{ xs: 1, sm: 2 }} size="small">
+                <Descriptions.Item label="MRN">{data.mrn}</Descriptions.Item>
+                <Descriptions.Item label="Date of birth">{data.dateOfBirth}</Descriptions.Item>
+                <Descriptions.Item label="Gender">{label(GENDER_OPTIONS, data.gender)}</Descriptions.Item>
+                <Descriptions.Item label="Blood type">{label(BLOOD_TYPE_OPTIONS, data.bloodType)}</Descriptions.Item>
+                <Descriptions.Item label="NRC">{data.nrcNumber ?? "—"}</Descriptions.Item>
+                <Descriptions.Item label="Phone">{data.primaryPhone}</Descriptions.Item>
+                <Descriptions.Item label="Email">{data.email ?? "—"}</Descriptions.Item>
+                <Descriptions.Item label="Township">{data.township ?? "—"}</Descriptions.Item>
+                <Descriptions.Item label="Address">{data.address ?? "—"}</Descriptions.Item>
+              </Descriptions>
+            ),
+          },
+          {
+            key: "allergies",
+            label: `Allergies (${data.allergies.length})`,
+            children: (
+              <DataTable<PatientAllergy>
+                rowKey="id"
+                columns={allergyColumns}
+                dataSource={data.allergies}
+              />
+            ),
+          },
+          {
+            key: "encounters",
+            label: `Encounters (${data.recentEncounters.length})`,
+            children: (
+              <DataTable<EncounterSummary>
+                rowKey="id"
+                columns={encounterColumns}
+                dataSource={data.recentEncounters}
+              />
+            ),
+          },
+        ]}
+      />
+    </>
+  );
+}

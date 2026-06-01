@@ -1,0 +1,45 @@
+{
+  "common": {
+    "appName": "ရန်ကုန် EMR",
+    "register": "မှတ်ပုံတင်",
+    "search": "လူနာ၊ MRN ရှာရန်…"
+  },
+  "groups": {
+    "clinical": "ဆေးကုသမှု",
+    "operations": "လုပ်ငန်းဆောင်တာ",
+    "admin": "စီမံခန့်ခွဲ"
+  },
+  "nav": {
+    "patients": "လူနာများ",
+    "appointments": "ချိန်းဆိုမှုများ",
+    "encounters": "ကုသမှုမှတ်တမ်း",
+    "pharmacy": "ဆေးဆိုင်",
+    "laboratory": "ဓာတ်ခွဲခန်း",
+    "billing": "ငွေတောင်းခံ",
+    "reports": "အစီရင်ခံစာ",
+    "users": "အသုံးပြုသူများ",
+    "settings": "ဆက်တင်များ"
+  },
+  "topbar": {
+    "notifications": "အကြောင်းကြားချက်များ",
+    "profile": "ပရိုဖိုင်",
+    "logout": "ထွက်ရန်"
+  },
+  "patients": {
+    "title": "လူနာများ",
+    "subtitle": "လူနာစာရင်း",
+    "name": "အမည် / MRN",
+    "phone": "ဖုန်း",
+    "gender": "ကျား/မ",
+    "status": "အခြေအနေ"
+  },
+  "status": {
+    "active": "သက်ဝင်",
+    "inactive": "ရပ်ဆိုင်း"
+  },
+  "gender": {
+    "male": "ကျား",
+    "female": "မ",
+    "other": "အခြား"
+  }
+}

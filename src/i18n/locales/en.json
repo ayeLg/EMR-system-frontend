@@ -1,0 +1,45 @@
+{
+  "common": {
+    "appName": "Yangon EMR",
+    "register": "Register",
+    "search": "Search patients, MRN…"
+  },
+  "groups": {
+    "clinical": "Clinical",
+    "operations": "Operations",
+    "admin": "Admin"
+  },
+  "nav": {
+    "patients": "Patients",
+    "appointments": "Appointments",
+    "encounters": "Encounters",
+    "pharmacy": "Pharmacy",
+    "laboratory": "Laboratory",
+    "billing": "Billing",
+    "reports": "Reports",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "topbar": {
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "logout": "Log out"
+  },
+  "patients": {
+    "title": "Patients",
+    "subtitle": "Patient list",
+    "name": "Name / MRN",
+    "phone": "Phone",
+    "gender": "Gender",
+    "status": "Status"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
+  }
+}
