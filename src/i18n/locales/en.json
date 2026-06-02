@@ -2,7 +2,12 @@
   "common": {
     "appName": "Yangon EMR",
     "register": "Register",
-    "search": "Search patients, MRN…"
+    "book": "Book appointment",
+    "addUser": "Add user",
+    "search": "Search patients, MRN, phone…",
+    "searchAppointments": "Search appointments, patient, doctor…",
+    "filterStatus": "Filter status",
+    "globalSearch": "Search patients, appointments, records…"
   },
   "groups": {
     "clinical": "Clinical",
@@ -20,14 +25,28 @@
     "users": "Users",
     "settings": "Settings"
   },
+  "commandPalette": {
+    "title": "Command palette",
+    "noResults": "No results found",
+    "hintNavigate": "↑↓ to navigate · Enter to open",
+    "hintClose": "Esc to close",
+    "groups": {
+      "navigation": "Pages",
+      "actions": "Quick actions",
+      "patients": "Patients"
+    }
+  },
   "topbar": {
     "notifications": "Notifications",
     "profile": "Profile",
     "logout": "Log out"
   },
+  "appointments": {
+    "subtitle": "Scheduling & queue management"
+  },
   "patients": {
     "title": "Patients",
-    "subtitle": "Patient list",
+    "subtitle": "Manage registrations and patient records",
     "name": "Name / MRN",
     "phone": "Phone",
     "gender": "Gender",

@@ -2,7 +2,12 @@
   "common": {
     "appName": "ရန်ကုန် EMR",
     "register": "မှတ်ပုံတင်",
-    "search": "လူနာ၊ MRN ရှာရန်…"
+    "book": "ချိန်းဆိုရန်",
+    "addUser": "အသုံးပြုသူ ထည့်ရန်",
+    "search": "လူနာ၊ MRN၊ ဖုန်း ရှာရန်…",
+    "searchAppointments": "ချိန်းဆိုမှု၊ လူနာ၊ ဆရာဝန် ရှာရန်…",
+    "filterStatus": "အခြေအနေ စစ်ထုတ်ရန်",
+    "globalSearch": "လူနာ၊ ချိန်းဆိုမှု၊ မှတ်တမ်း ရှာရန်…"
   },
   "groups": {
     "clinical": "ဆေးကုသမှု",
@@ -20,14 +25,28 @@
     "users": "အသုံးပြုသူများ",
     "settings": "ဆက်တင်များ"
   },
+  "commandPalette": {
+    "title": "ရှာဖွေရေး မျက်နှာပြင်",
+    "noResults": "ရလဒ် မတွေ့ပါ",
+    "hintNavigate": "↑↓ ရွေးရန် · Enter ဖွင့်ရန်",
+    "hintClose": "Esc ပိတ်ရန်",
+    "groups": {
+      "navigation": "စာမျက်နှာများ",
+      "actions": "လျင်မြန်လုပ်ဆောင်ချက်",
+      "patients": "လူနာများ"
+    }
+  },
   "topbar": {
     "notifications": "အကြောင်းကြားချက်များ",
     "profile": "ပရိုဖိုင်",
     "logout": "ထွက်ရန်"
   },
+  "appointments": {
+    "subtitle": "ချိန်းဆိုမှုနှင့် တန်းစီမှု စီမံခန့်ခွဲမှု"
+  },
   "patients": {
     "title": "လူနာများ",
-    "subtitle": "လူနာစာရင်း",
+    "subtitle": "မှတ်ပုံတင်မှုနှင့် လူနာမှတ်တမ်းများ စီမံခန့်ခွဲရန်",
     "name": "အမည် / MRN",
     "phone": "ဖုန်း",
     "gender": "ကျား/မ",

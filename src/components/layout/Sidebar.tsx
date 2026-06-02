@@ -1,6 +1,7 @@
 "use client";
 
 import { Layout, theme } from "antd";
+import { MedicineBoxOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { useUIStore } from "@/store/ui-store";
 import { APP } from "@/config/app";
@@ -11,12 +12,14 @@ const { Sider } = Layout;
 export function Sidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
   const setCollapsed = useUIStore((s) => s.setSidebarCollapsed);
+  const themeMode = useUIStore((s) => s.theme);
   const t = useTranslations();
   const { token } = theme.useToken();
 
   return (
     <Sider
-      theme="light"
+      className="emr-sidebar"
+      theme={themeMode === "dark" ? "dark" : "light"}
       collapsible
       collapsed={collapsed}
       onCollapse={setCollapsed}
@@ -27,31 +30,19 @@ export function Sidebar() {
         borderInlineEnd: `1px solid ${token.colorBorderSecondary}`,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          height: 48,
-          padding: "0 16px",
-        }}
-      >
-        <div
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: 6,
-            background: token.colorPrimary,
-            flexShrink: 0,
-          }}
-        />
-        {!collapsed ? (
-          <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>
-            {t("common.appName")}
-          </span>
-        ) : null}
+      <div className="emr-sidebar-inner">
+        <div className="emr-sidebar-brand">
+          <div className="emr-sidebar-logo" aria-hidden>
+            <MedicineBoxOutlined />
+          </div>
+          {!collapsed ? (
+            <span className="emr-sidebar-title">{t("common.appName")}</span>
+          ) : null}
+        </div>
+        <div className="emr-sidebar-nav">
+          <NavMenu />
+        </div>
       </div>
-      <NavMenu />
     </Sider>
   );
 }

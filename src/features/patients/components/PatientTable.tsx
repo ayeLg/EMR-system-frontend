@@ -3,9 +3,12 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TableProps } from "antd";
-import { Flex, Input, Select } from "antd";
 import { useTranslations } from "next-intl";
 import { DataTable } from "@/components/common/DataTable";
+import { ContentCard } from "@/components/ui/ContentCard";
+import { FilterSelect } from "@/components/ui/FilterSelect";
+import { PageToolbar } from "@/components/ui/PageToolbar";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { GENDER, PATIENT_STATUS } from "@/config/enums";
 import { ROUTES } from "@/config/routes";
@@ -52,27 +55,32 @@ export function PatientTable() {
   ];
 
   return (
-    <Flex vertical gap={12}>
-      <Flex gap={8} wrap="wrap">
-        <Input.Search
-          placeholder={t("common.search")}
-          allowClear
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ maxWidth: 320 }}
+    <ContentCard
+      toolbar={
+        <PageToolbar
+          search={
+            <SearchInput
+              wide
+              placeholder={t("common.search")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          }
+          filters={
+            <FilterSelect
+              label={tp("status")}
+              placeholder={t("common.filterStatus")}
+              value={status}
+              onChange={setStatus}
+              options={[
+                { label: t("status.active"), value: "ACTIVE" },
+                { label: t("status.inactive"), value: "INACTIVE" },
+              ]}
+            />
+          }
         />
-        <Select
-          placeholder={tp("status")}
-          allowClear
-          value={status}
-          onChange={setStatus}
-          style={{ width: 160 }}
-          options={[
-            { label: t("status.active"), value: "ACTIVE" },
-            { label: t("status.inactive"), value: "INACTIVE" },
-          ]}
-        />
-      </Flex>
+      }
+    >
       <DataTable<Patient>
         rowKey="id"
         columns={columns}
@@ -83,6 +91,6 @@ export function PatientTable() {
           style: { cursor: "pointer" },
         })}
       />
-    </Flex>
+    </ContentCard>
   );
 }

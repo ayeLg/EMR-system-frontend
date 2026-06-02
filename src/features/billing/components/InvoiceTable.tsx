@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { TableProps } from "antd";
 import { Tag } from "antd";
 import { DataTable } from "@/components/common/DataTable";
+import { ContentCard } from "@/components/ui/ContentCard";
 import { ROUTES } from "@/config/routes";
 import { useInvoices } from "../hooks/useBilling";
 import { INVOICE_STATUS_META, formatMMK } from "../constants";
@@ -31,15 +32,17 @@ export function InvoiceTable() {
   ];
 
   return (
-    <DataTable<Invoice>
-      rowKey="id"
-      columns={columns}
-      dataSource={data}
-      loading={isLoading}
-      onRow={(record) => ({
-        onClick: () => router.push(`${ROUTES.billing}/${record.id}`),
-        style: { cursor: "pointer" },
-      })}
-    />
+    <ContentCard>
+      <DataTable<Invoice>
+        rowKey="id"
+        columns={columns}
+        dataSource={data}
+        loading={isLoading}
+        onRow={(record) => ({
+          onClick: () => router.push(`${ROUTES.billing}/${record.id}`),
+          style: { cursor: "pointer" },
+        })}
+      />
+    </ContentCard>
   );
 }

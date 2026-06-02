@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Button, Dropdown, Flex, Input, Space, Typography } from "antd";
+import { Avatar, Button, Dropdown, Flex, Space, Typography } from "antd";
 import {
   BulbOutlined,
   GlobalOutlined,
@@ -13,15 +13,18 @@ import { useUIStore } from "@/store/ui-store";
 import { usePermissions } from "@/lib/rbac/usePermissions";
 import { LOCALE_LABELS } from "@/i18n/config";
 import { NotificationBell } from "@/features/notifications/NotificationBell";
+import { GlobalSearchTrigger } from "@/components/search/GlobalSearchTrigger";
 
 const { Text } = Typography;
 
 export function Topbar({
   showHamburger,
   onOpenDrawer,
+  showBrand,
 }: {
   showHamburger: boolean;
   onOpenDrawer: () => void;
+  showBrand?: boolean;
 }) {
   const t = useTranslations();
   const locale = useUIStore((s) => s.locale);
@@ -30,23 +33,22 @@ export function Topbar({
   const { user } = usePermissions();
 
   return (
-    <Flex align="center" gap={12} style={{ width: "100%" }}>
+    <Flex align="center" gap={16} style={{ width: "100%" }}>
       {showHamburger ? (
         <Button type="text" icon={<MenuOutlined />} onClick={onOpenDrawer} />
       ) : null}
 
-      <Text strong style={{ fontSize: 15, whiteSpace: "nowrap" }}>
-        {t("common.appName")}
-      </Text>
+      {showBrand ? (
+        <Text strong style={{ fontSize: 15, whiteSpace: "nowrap" }}>
+          {t("common.appName")}
+        </Text>
+      ) : null}
 
-      <Input
-        prefix={<span style={{ color: "#94a3b8" }}>🔍</span>}
-        placeholder={t("common.search")}
-        variant="filled"
-        style={{ maxWidth: 280, marginInline: "auto" }}
-      />
+      <div className="emr-global-search">
+        <GlobalSearchTrigger />
+      </div>
 
-      <Space size={4}>
+      <Space size={4} className="emr-topbar-actions" style={{ marginInlineStart: "auto" }}>
         <Button
           type="text"
           icon={<GlobalOutlined />}
@@ -96,8 +98,11 @@ export function Topbar({
           trigger={["click"]}
         >
           <Avatar
-            style={{ backgroundColor: "#1677FF", cursor: "pointer" }}
-            size="small"
+            style={{
+              background: "linear-gradient(135deg, #1677ff 0%, #4096ff 100%)",
+              cursor: "pointer",
+            }}
+            size="default"
           >
             {user.name.charAt(0)}
           </Avatar>

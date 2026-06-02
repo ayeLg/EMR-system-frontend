@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { TableProps } from "antd";
 import { Button, Tag } from "antd";
 import { DataTable } from "@/components/common/DataTable";
+import { ContentCard } from "@/components/ui/ContentCard";
 import { usePrescriptions } from "../hooks/usePharmacy";
 import { PRIORITY_META, RX_STATUS_META } from "../constants";
 import type { Prescription } from "../types";
@@ -59,12 +60,14 @@ export function PrescriptionQueue() {
 
   return (
     <>
-      <DataTable<Prescription>
-        rowKey="id"
-        columns={columns}
-        dataSource={rows}
-        loading={isLoading}
-      />
+      <ContentCard>
+        <DataTable<Prescription>
+          rowKey="id"
+          columns={columns}
+          dataSource={rows}
+          loading={isLoading}
+        />
+      </ContentCard>
       <DispenseModal
         rx={selected}
         open={!!selected}

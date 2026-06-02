@@ -16,21 +16,26 @@ export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
     <Flex
       justify="space-between"
       align="flex-start"
-      style={{ marginBottom: 16 }}
-      gap={12}
+      className="emr-page-header"
+      gap={16}
       wrap="wrap"
+      style={{ marginBottom: 20 }}
     >
       <div>
-        <Title level={4} style={{ margin: 0 }}>
+        <Title level={3} style={{ margin: 0, fontWeight: 600, letterSpacing: "-0.02em" }}>
           {title}
         </Title>
         {subtitle ? (
-          <Text type="secondary" style={{ fontSize: 13 }}>
+          <Text type="secondary" style={{ fontSize: 14, marginTop: 4, display: "block" }}>
             {subtitle}
           </Text>
         ) : null}
       </div>
-      {actions ? <div>{actions}</div> : null}
+      {actions ? (
+        <Flex gap={8} align="center" style={{ padding: "4px 0" }}>
+          {actions}
+        </Flex>
+      ) : null}
     </Flex>
   );
 }

@@ -4,6 +4,7 @@ import type { TableProps } from "antd";
 import { Tag } from "antd";
 import dayjs from "dayjs";
 import { DataTable } from "@/components/common/DataTable";
+import { ContentCard } from "@/components/ui/ContentCard";
 import { useInventory } from "../hooks/usePharmacy";
 import type { InventoryItem } from "../types";
 
@@ -46,11 +47,13 @@ export function InventoryTable() {
   ];
 
   return (
-    <DataTable<InventoryItem>
-      rowKey="id"
-      columns={columns}
-      dataSource={data}
-      loading={isLoading}
-    />
+    <ContentCard>
+      <DataTable<InventoryItem>
+        rowKey="id"
+        columns={columns}
+        dataSource={data}
+        loading={isLoading}
+      />
+    </ContentCard>
   );
 }

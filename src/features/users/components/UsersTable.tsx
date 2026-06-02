@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { TableProps } from "antd";
-import { Button, Flex, Tag } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Tag } from "antd";
 import { DataTable } from "@/components/common/DataTable";
+import { ContentCard } from "@/components/ui/ContentCard";
+import { PageToolbar } from "@/components/ui/PageToolbar";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { useStaff } from "../hooks/useStaff";
 import type { StaffStatus, StaffUser } from "../types";
 import { AddUserModal } from "./AddUserModal";
@@ -16,9 +18,26 @@ const STATUS_COLOR: Record<StaffStatus, string> = {
   PENDING: "gold",
 };
 
-export function UsersTable() {
+interface UsersTableProps {
+  modalOpen: boolean;
+  onCloseModal: () => void;
+}
+
+export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
   const { data, isLoading } = useStaff();
-  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return (data ?? []).filter(
+      (u) =>
+        !q ||
+        u.fullName.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.employeeId.toLowerCase().includes(q) ||
+        u.department.toLowerCase().includes(q),
+    );
+  }, [data, search]);
 
   const columns: TableProps<StaffUser>["columns"] = [
     { title: "Name", dataIndex: "fullName", key: "fullName" },
@@ -34,19 +53,29 @@ export function UsersTable() {
   ];
 
   return (
-    <Flex vertical gap={12}>
-      <Flex justify="flex-end">
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpen(true)}>
-          Add user
-        </Button>
-      </Flex>
-      <DataTable<StaffUser>
-        rowKey="id"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
-      />
-      <AddUserModal open={open} onClose={() => setOpen(false)} />
-    </Flex>
+    <>
+      <ContentCard
+        toolbar={
+          <PageToolbar
+            search={
+              <SearchInput
+                wide
+                placeholder="Search by name, email, or ID…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            }
+          />
+        }
+      >
+        <DataTable<StaffUser>
+          rowKey="id"
+          columns={columns}
+          dataSource={filtered}
+          loading={isLoading}
+        />
+      </ContentCard>
+      <AddUserModal open={modalOpen} onClose={onCloseModal} />
+    </>
   );
 }

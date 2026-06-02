@@ -7,6 +7,7 @@ import { APP } from "@/config/app";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { NavMenu } from "./NavMenu";
+import { GlobalSearchCommand } from "@/components/search/GlobalSearchCommand";
 
 const { Header, Content } = Layout;
 
@@ -16,28 +17,37 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { token } = theme.useToken();
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout className="emr-app-shell">
       {!isMobile ? <Sidebar /> : null}
 
-      <Layout>
+      <Layout className="emr-app-main">
         <Header
+          className="emr-app-header"
           style={{
-            height: 48,
-            paddingInline: 16,
+            height: 56,
+            paddingInline: 20,
             background: token.colorBgContainer,
             borderBlockEnd: `1px solid ${token.colorBorderSecondary}`,
             display: "flex",
             alignItems: "center",
+            flexShrink: 0,
           }}
         >
           <Topbar
             showHamburger={isMobile}
+            showBrand={isMobile}
             onOpenDrawer={() => setDrawerOpen(true)}
           />
         </Header>
 
-        <Content style={{ padding: 16, background: token.colorBgLayout }}>
-          {children}
+        <Content
+          className="emr-app-content"
+          style={{
+            padding: "24px 20px 32px",
+            background: token.colorBgLayout,
+          }}
+        >
+          <div className="emr-dashboard-content">{children}</div>
         </Content>
       </Layout>
 
@@ -50,6 +60,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <NavMenu onNavigate={() => setDrawerOpen(false)} />
       </Drawer>
+
+      <GlobalSearchCommand />
     </Layout>
   );
 }

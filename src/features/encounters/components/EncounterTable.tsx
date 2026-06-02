@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { TableProps } from "antd";
 import { Tag } from "antd";
 import { DataTable } from "@/components/common/DataTable";
+import { ContentCard } from "@/components/ui/ContentCard";
 import { ROUTES } from "@/config/routes";
 import { useEncounters } from "../hooks/useEncounters";
 import { ENC_STATUS_META } from "../constants";
@@ -31,15 +32,17 @@ export function EncounterTable() {
   ];
 
   return (
-    <DataTable<Encounter>
-      rowKey="id"
-      columns={columns}
-      dataSource={data}
-      loading={isLoading}
-      onRow={(record) => ({
-        onClick: () => router.push(`${ROUTES.encounters}/${record.id}`),
-        style: { cursor: "pointer" },
-      })}
-    />
+    <ContentCard>
+      <DataTable<Encounter>
+        rowKey="id"
+        columns={columns}
+        dataSource={data}
+        loading={isLoading}
+        onRow={(record) => ({
+          onClick: () => router.push(`${ROUTES.encounters}/${record.id}`),
+          style: { cursor: "pointer" },
+        })}
+      />
+    </ContentCard>
   );
 }

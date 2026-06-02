@@ -1,20 +1,53 @@
 "use client";
 
-import { Table } from "antd";
+import { Table, theme } from "antd";
 import type { TableProps } from "antd";
 
+export type DataTableProps<T extends object> = TableProps<T>;
+
 /**
- * Thin wrapper over AntD Table with compact, EMR-friendly defaults.
- * Pass `rowKey`, `columns`, `dataSource`, `loading` as usual.
+ * Polished data table for list pages — spacing, borders, and pagination
+ * aligned with the EMR dashboard design system.
  */
-export function DataTable<T extends object>(props: TableProps<T>) {
+export function DataTable<T extends object>({
+  className,
+  pagination,
+  ...props
+}: DataTableProps<T>) {
+  const { token } = theme.useToken();
+
+  const mergedPagination =
+    pagination === false
+      ? false
+      : {
+          pageSize: 10,
+          hideOnSinglePage: true,
+          size: "small" as const,
+          showSizeChanger: false,
+          showTotal: (total: number) => (
+            <span className="emr-table-total">{total} records</span>
+          ),
+          ...pagination,
+        };
+
   return (
-    <Table<T>
-      size="small"
-      bordered
-      pagination={{ pageSize: 10, hideOnSinglePage: true, size: "small" }}
-      scroll={{ x: "max-content" }}
-      {...props}
-    />
+    <div className="emr-data-table-wrap">
+      <Table<T>
+        className={["emr-data-table", className].filter(Boolean).join(" ")}
+        size="middle"
+        bordered={false}
+        tableLayout="auto"
+        pagination={mergedPagination}
+        scroll={{ x: "max-content" }}
+        rowClassName={(_, index) =>
+          index % 2 === 1 ? "emr-data-table__row--alt" : ""
+        }
+        {...props}
+        style={{
+          background: token.colorBgContainer,
+          ...props.style,
+        }}
+      />
+    </div>
   );
 }

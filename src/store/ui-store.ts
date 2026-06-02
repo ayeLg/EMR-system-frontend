@@ -8,12 +8,15 @@ interface UIState {
   theme: ThemeMode;
   locale: Locale;
   sidebarCollapsed: boolean;
+  commandPaletteOpen: boolean;
   setTheme: (theme: ThemeMode) => void;
   toggleTheme: () => void;
   setLocale: (locale: Locale) => void;
   toggleLocale: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleSidebar: () => void;
+  setCommandPaletteOpen: (open: boolean) => void;
+  toggleCommandPalette: () => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -22,6 +25,7 @@ export const useUIStore = create<UIState>()(
       theme: "light",
       locale: "en",
       sidebarCollapsed: false,
+      commandPaletteOpen: false,
       setTheme: (theme) => set({ theme }),
       toggleTheme: () =>
         set((s) => ({ theme: s.theme === "light" ? "dark" : "light" })),
@@ -31,7 +35,17 @@ export const useUIStore = create<UIState>()(
       setSidebarCollapsed: (sidebarCollapsed) => set({ sidebarCollapsed }),
       toggleSidebar: () =>
         set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+      setCommandPaletteOpen: (commandPaletteOpen) => set({ commandPaletteOpen }),
+      toggleCommandPalette: () =>
+        set((s) => ({ commandPaletteOpen: !s.commandPaletteOpen })),
     }),
-    { name: "emr-ui" },
+    {
+      name: "emr-ui",
+      partialize: (state) => ({
+        theme: state.theme,
+        locale: state.locale,
+        sidebarCollapsed: state.sidebarCollapsed,
+      }),
+    },
   ),
 );

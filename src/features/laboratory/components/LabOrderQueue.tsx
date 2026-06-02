@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import type { TableProps } from "antd";
 import { Tag } from "antd";
 import { DataTable } from "@/components/common/DataTable";
+import { ContentCard } from "@/components/ui/ContentCard";
 import { ROUTES } from "@/config/routes";
 import { useLabOrders } from "../hooks/useLaboratory";
 import { LAB_PRIORITY_META, LAB_STATUS_META } from "../constants";
@@ -39,15 +40,17 @@ export function LabOrderQueue() {
   ];
 
   return (
-    <DataTable<LabOrder>
-      rowKey="id"
-      columns={columns}
-      dataSource={data}
-      loading={isLoading}
-      onRow={(record) => ({
-        onClick: () => router.push(`${ROUTES.laboratory}/${record.id}`),
-        style: { cursor: "pointer" },
-      })}
-    />
+    <ContentCard>
+      <DataTable<LabOrder>
+        rowKey="id"
+        columns={columns}
+        dataSource={data}
+        loading={isLoading}
+        onRow={(record) => ({
+          onClick: () => router.push(`${ROUTES.laboratory}/${record.id}`),
+          style: { cursor: "pointer" },
+        })}
+      />
+    </ContentCard>
   );
 }
