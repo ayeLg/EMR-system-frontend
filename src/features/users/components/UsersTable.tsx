@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { TableProps } from "antd";
-import { Tag } from "antd";
+import { App, Button, Popconfirm, Space, Tag } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { PageToolbar } from "@/components/ui/PageToolbar";
@@ -25,19 +26,24 @@ interface UsersTableProps {
 
 export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
   const { data, isLoading } = useStaff();
+  const { message } = App.useApp();
   const [search, setSearch] = useState("");
+  const [editing, setEditing] = useState<StaffUser | null>(null);
+  const [removed, setRemoved] = useState<string[]>([]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (data ?? []).filter(
-      (u) =>
-        !q ||
-        u.fullName.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        u.employeeId.toLowerCase().includes(q) ||
-        u.department.toLowerCase().includes(q),
-    );
-  }, [data, search]);
+    return (data ?? [])
+      .filter((u) => !removed.includes(u.id))
+      .filter(
+        (u) =>
+          !q ||
+          u.fullName.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          u.employeeId.toLowerCase().includes(q) ||
+          u.department.toLowerCase().includes(q),
+      );
+  }, [data, search, removed]);
 
   const columns: TableProps<StaffUser>["columns"] = [
     { title: "Name", dataIndex: "fullName", key: "fullName" },
@@ -49,6 +55,27 @@ export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
       title: "Status",
       key: "status",
       render: (_, r) => <Tag color={STATUS_COLOR[r.status]}>{r.status}</Tag>,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 120,
+      render: (_, r) => (
+        <Space>
+          <Button size="small" icon={<EditOutlined />} onClick={() => setEditing(r)} />
+          <Popconfirm
+            title="Deactivate this user?"
+            onConfirm={() => {
+              setRemoved((p) => [...p, r.id]);
+              message.success("User deactivated (mock).");
+            }}
+            okText="Deactivate"
+            okButtonProps={{ danger: true }}
+          >
+            <Button size="small" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
@@ -76,6 +103,7 @@ export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
         />
       </ContentCard>
       <AddUserModal open={modalOpen} onClose={onCloseModal} />
+      <AddUserModal open={!!editing} user={editing} onClose={() => setEditing(null)} />
     </>
   );
 }

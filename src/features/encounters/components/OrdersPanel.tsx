@@ -50,6 +50,9 @@ export function OrdersPanel() {
           <Button icon={<ExperimentOutlined />} onClick={() => { setOrders((p) => [...p, "Lab · CBC"]); message.success("Lab order placed: CBC."); }}>
             Order lab (CBC)
           </Button>
+          <Button onClick={() => { setOrders((p) => [...p, "Radiology · Chest X-ray"]); message.success("Radiology order placed: Chest X-ray."); }}>
+            Order X-ray
+          </Button>
         </Space>
       </Card>
 

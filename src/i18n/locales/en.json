@@ -23,7 +23,15 @@
     "billing": "Billing",
     "reports": "Reports",
     "users": "Users",
-    "settings": "Settings"
+    "settings": "Settings",
+    "nurseQueue": "Nurse queue",
+    "ipd": "IPD / Admissions",
+    "clinicalDocs": "Clinical docs",
+    "printPreviews": "Print previews",
+    "masterData": "Master data",
+    "doctorSchedules": "Doctor schedules",
+    "auditLogs": "Audit logs",
+    "notifications": "Notifications"
   },
   "commandPalette": {
     "title": "Command palette",

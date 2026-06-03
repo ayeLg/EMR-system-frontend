@@ -1,7 +1,9 @@
 "use client";
 
 import type { TableProps } from "antd";
-import { Descriptions, Skeleton, Tabs, Tag } from "antd";
+import { Button, Descriptions, Skeleton, Space, Tabs, Tag } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import { ROUTES } from "@/config/routes";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { DataTable } from "@/components/common/DataTable";
@@ -53,10 +55,15 @@ export function PatientDetailView({ id }: { id: string }) {
         title={data.fullName}
         subtitle={data.mrn}
         actions={
-          <StatusTag
-            labelKey={PATIENT_STATUS[data.status].labelKey}
-            color={PATIENT_STATUS[data.status].color}
-          />
+          <Space>
+            <StatusTag
+              labelKey={PATIENT_STATUS[data.status].labelKey}
+              color={PATIENT_STATUS[data.status].color}
+            />
+            <Button icon={<EditOutlined />} href={`${ROUTES.patients}/${id}/edit`}>
+              Edit
+            </Button>
+          </Space>
         }
       />
       <Tabs

@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const subscribe = () => () => {};
+const getSnapshot = () => /Mac|iPhone|iPod|iPad/i.test(navigator.platform);
+const getServerSnapshot = () => false;
 
 export function useIsMac() {
-  const [isMac, setIsMac] = useState(false);
-
-  useEffect(() => {
-    setIsMac(/Mac|iPhone|iPod|iPad/i.test(navigator.platform));
-  }, []);
-
-  return isMac;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

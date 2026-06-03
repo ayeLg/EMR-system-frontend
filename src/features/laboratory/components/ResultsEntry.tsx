@@ -102,10 +102,15 @@ export function ResultsEntry({ items }: { items: LabTestItem[] }) {
           Collect specimen
         </Button>
         <Button
-          type="primary"
           onClick={() => message.success("Results saved & sent for verification (mock).")}
         >
           Save results
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => message.success("Verified by pathologist (mock) → status VERIFIED.")}
+        >
+          Verify &amp; release
         </Button>
       </Flex>
     </Flex>

@@ -22,6 +22,10 @@ export const handlers = [
     return detail ? HttpResponse.json(detail) : new HttpResponse(null, { status: 404 });
   }),
   http.get("/api/appointments", () => HttpResponse.json(MOCK_APPOINTMENTS)),
+  http.get("/api/appointments/:id", ({ params }) => {
+    const appt = MOCK_APPOINTMENTS.find((a) => a.id === String(params.id));
+    return appt ? HttpResponse.json(appt) : new HttpResponse(null, { status: 404 });
+  }),
   http.get("/api/encounters", () => HttpResponse.json(MOCK_ENCOUNTERS)),
   http.get("/api/encounters/:id", ({ params }) => {
     const detail = getMockEncounterDetail(String(params.id));

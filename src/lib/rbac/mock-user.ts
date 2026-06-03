@@ -12,5 +12,5 @@ export interface CurrentUser {
  */
 export const MOCK_USER: CurrentUser = {
   name: "Dr. Aung Aung",
-  role: "DOCTOR",
+  role: "SUPER_ADMIN",
 };

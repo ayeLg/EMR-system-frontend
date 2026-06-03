@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { App, Form, Input, Modal, Select } from "antd";
+import type { StaffUser } from "../types";
 
 const ROLE_OPTIONS = [
   "SUPER_ADMIN",
@@ -15,21 +17,34 @@ const ROLE_OPTIONS = [
 export function AddUserModal({
   open,
   onClose,
+  user,
 }: {
   open: boolean;
   onClose: () => void;
+  user?: StaffUser | null;
 }) {
   const { message } = App.useApp();
   const [form] = Form.useForm();
+  const isEdit = !!user;
+
+  useEffect(() => {
+    if (!open) return;
+    if (user) form.setFieldsValue(user);
+    else form.resetFields();
+  }, [open, user, form]);
 
   return (
     <Modal
       open={open}
-      title="Add staff user"
-      okText="Create"
+      title={isEdit ? "Edit staff user" : "Add staff user"}
+      okText={isEdit ? "Save" : "Create"}
       onOk={() =>
         form.validateFields().then(() => {
-          message.success("Staff user created (mock). Invite email sent.");
+          message.success(
+            isEdit
+              ? "Staff user updated (mock)."
+              : "Staff user created (mock). Invite email sent.",
+          );
           form.resetFields();
           onClose();
         })

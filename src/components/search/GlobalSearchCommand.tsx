@@ -91,6 +91,7 @@ export function GlobalSearchCommand() {
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery("");
       setActiveIndex(0);
       requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
@@ -98,6 +99,7 @@ export function GlobalSearchCommand() {
   }, [open]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(0);
   }, [query]);
 

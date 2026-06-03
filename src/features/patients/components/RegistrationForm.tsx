@@ -15,7 +15,13 @@ import {
   RELATIONSHIP_OPTIONS,
 } from "../options";
 
-export function RegistrationForm() {
+export function RegistrationForm({
+  mode = "create",
+  defaultValues,
+}: {
+  mode?: "create" | "edit";
+  defaultValues?: Partial<RegistrationValues>;
+} = {}) {
   const router = useRouter();
   const { message } = App.useApp();
 
@@ -36,12 +42,15 @@ export function RegistrationForm() {
       emergencyRelationship: undefined,
       insuranceProvider: "",
       insurancePolicy: "",
+      ...defaultValues,
     },
   });
 
   const onSubmit = handleSubmit(() => {
     // UI-only: mock create, then go back to the list.
-    message.success("Patient registered (mock). MRN generated.");
+    message.success(
+      mode === "edit" ? "Patient updated (mock)." : "Patient registered (mock). MRN generated.",
+    );
     router.push(ROUTES.patients);
   });
 
@@ -116,7 +125,7 @@ export function RegistrationForm() {
       <Flex justify="flex-end" gap={8}>
         <Button onClick={() => router.push(ROUTES.patients)}>Cancel</Button>
         <Button type="primary" htmlType="submit">
-          Register patient
+          {mode === "edit" ? "Save changes" : "Register patient"}
         </Button>
       </Flex>
     </Form>

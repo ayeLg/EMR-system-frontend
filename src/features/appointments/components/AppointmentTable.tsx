@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { TableProps } from "antd";
 import { Tag } from "antd";
 import { useTranslations } from "next-intl";
@@ -9,6 +10,7 @@ import { ContentCard } from "@/components/ui/ContentCard";
 import { FilterSelect } from "@/components/ui/FilterSelect";
 import { PageToolbar } from "@/components/ui/PageToolbar";
 import { SearchInput } from "@/components/ui/SearchInput";
+import { ROUTES } from "@/config/routes";
 import { useAppointments } from "../hooks/useAppointments";
 import {
   APPT_STATUS_META,
@@ -19,6 +21,7 @@ import type { Appointment } from "../types";
 
 export function AppointmentTable() {
   const t = useTranslations("common");
+  const router = useRouter();
   const { data, isLoading } = useAppointments();
   const [status, setStatus] = useState<string | undefined>();
   const [search, setSearch] = useState("");
@@ -93,6 +96,10 @@ export function AppointmentTable() {
         columns={columns}
         dataSource={filtered}
         loading={isLoading}
+        onRow={(record) => ({
+          onClick: () => router.push(`${ROUTES.appointments}/${record.id}`),
+          style: { cursor: "pointer" },
+        })}
       />
     </ContentCard>
   );

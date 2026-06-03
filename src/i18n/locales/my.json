@@ -23,7 +23,15 @@
     "billing": "ငွေတောင်းခံ",
     "reports": "အစီရင်ခံစာ",
     "users": "အသုံးပြုသူများ",
-    "settings": "ဆက်တင်များ"
+    "settings": "ဆက်တင်များ",
+    "nurseQueue": "သူနာပြု queue",
+    "ipd": "အတွင်းလူနာ",
+    "clinicalDocs": "ဆေးမှတ်တမ်းစာရွက်",
+    "printPreviews": "ပုံနှိပ်အစမ်း",
+    "masterData": "အခြေခံဒေတာ",
+    "doctorSchedules": "ဆရာဝန်အချိန်ဇယား",
+    "auditLogs": "စစ်ဆေးမှတ်တမ်း",
+    "notifications": "အကြောင်းကြားချက်"
   },
   "commandPalette": {
     "title": "ရှာဖွေရေး မျက်နှာပြင်",

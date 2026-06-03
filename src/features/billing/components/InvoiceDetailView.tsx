@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { TableProps } from "antd";
-import { App, Button, Card, Descriptions, Flex, Skeleton, Table, Tag } from "antd";
+import { App, Button, Card, Descriptions, Flex, Popconfirm, Skeleton, Space, Table, Tag } from "antd";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { useInvoice } from "../hooks/useBilling";
@@ -43,8 +43,8 @@ export function InvoiceDetailView({ id }: { id: string }) {
         title={data.invoiceNo}
         subtitle={`${data.patientName} · ${data.mrn}`}
         actions={
-          <>
-            <Tag color={INVOICE_STATUS_META[data.status].color} style={{ marginInlineEnd: 8 }}>
+          <Space wrap>
+            <Tag color={INVOICE_STATUS_META[data.status].color}>
               {INVOICE_STATUS_META[data.status].label}
             </Tag>
             {outstanding > 0 ? (
@@ -52,7 +52,24 @@ export function InvoiceDetailView({ id }: { id: string }) {
                 Record payment
               </Button>
             ) : null}
-          </>
+            <Button onClick={() => message.info("Insurance claim submitted to TPA (mock).")}>
+              Submit claim
+            </Button>
+            {data.status === "PAID" ? (
+              <Button onClick={() => message.info("Credit note created (mock). PAID invoices cannot be voided directly.")}>
+                Create credit note
+              </Button>
+            ) : data.status !== "VOID" ? (
+              <Popconfirm
+                title="Void invoice? (supervisor only, reason required, audit-logged)"
+                onConfirm={() => message.success("Invoice voided (mock). Reason logged to audit.")}
+                okText="Void"
+                okButtonProps={{ danger: true }}
+              >
+                <Button danger>Void</Button>
+              </Popconfirm>
+            ) : null}
+          </Space>
         }
       />
 
