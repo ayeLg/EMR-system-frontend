@@ -48,7 +48,7 @@ export function FormSelect<T extends FieldValues>({
             allowClear={allowClear}
             variant="outlined"
             className="emr-form-select"
-            popupClassName="emr-filter-select-dropdown"
+            classNames={{ popup: { root: "emr-filter-select-dropdown" } }}
             style={{ width: "100%" }}
           />
         </Form.Item>
