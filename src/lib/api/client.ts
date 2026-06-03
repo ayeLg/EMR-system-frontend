@@ -1,4 +1,12 @@
 import axios, { AxiosError } from "axios";
+import { isApiSuccess, type ApiErrorBody, type PaginationMeta } from "./types";
+
+// Surface pagination meta on the axios response for callers that need it.
+declare module "axios" {
+  export interface AxiosResponse {
+    meta?: PaginationMeta;
+  }
+}
 
 /**
  * Central HTTP client. In the UI-only phase requests are intercepted by MSW.
@@ -23,16 +31,28 @@ export interface ApiError {
   message: string;
 }
 
-// Response: normalize errors into a predictable shape.
+// Response: unwrap the standard `{ success, data, meta }` envelope so callers
+// receive the payload directly. Non-enveloped responses pass through unchanged.
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<{ message?: string }>) => {
+  (response) => {
+    const body: unknown = response.data;
+    if (isApiSuccess(body)) {
+      response.data = body.data;
+      response.meta = body.meta;
+    }
+    return response;
+  },
+  // Errors: normalize the backend error envelope into a predictable shape.
+  (error: AxiosError<ApiErrorBody>) => {
+    const body = error.response?.data;
+    const rawMessage = body?.message;
+    const message = Array.isArray(rawMessage)
+      ? rawMessage.join(", ")
+      : (rawMessage ?? error.message ?? "Unexpected error");
+
     const normalized: ApiError = {
       status: error.response?.status ?? 0,
-      message:
-        error.response?.data?.message ??
-        error.message ??
-        "Unexpected error",
+      message,
     };
     return Promise.reject(normalized);
   },
