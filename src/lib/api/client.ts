@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { ENV } from "@/config/env";
 import { isApiSuccess, type ApiErrorBody, type PaginationMeta } from "./types";
 
 // Surface pagination meta on the axios response for callers that need it.
@@ -13,13 +14,13 @@ declare module "axios" {
  * Swapping to the real NestJS backend = change baseURL / token source only.
  */
 export const apiClient = axios.create({
-  baseURL: "/api",
+  baseURL: ENV.apiBaseUrl,
   headers: { "Content-Type": "application/json" },
 });
 
 // Request: attach auth token (mock for now).
 apiClient.interceptors.request.use((config) => {
-  const token = "mock-token";
+  const token = ENV.mockAuthToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

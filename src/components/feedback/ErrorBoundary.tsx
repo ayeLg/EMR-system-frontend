@@ -2,6 +2,7 @@
 
 import { Component, type ReactNode } from "react";
 import { Result } from "antd";
+import { logger } from "@/lib/observability/logger";
 
 interface Props {
   children: ReactNode;
@@ -20,7 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: unknown) {
-    console.error("ErrorBoundary caught:", error);
+    logger.error("ErrorBoundary caught an error", { error });
   }
 
   render() {
