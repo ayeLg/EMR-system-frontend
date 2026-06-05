@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import { fromApiRow, fromApiRows, toApiPayload } from "../mappers";
 import type { MasterResource, MasterRow } from "../types";
 
-const base = (resource: MasterResource) => `/master-data/${resource}`;
+const base = (resource: MasterResource) => `/${resource}`;
 
 export async function listMasterData(resource: MasterResource): Promise<MasterRow[]> {
   const { data } = await apiClient.get<MasterRow[]>(base(resource));
