@@ -1,31 +1,37 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Flex, Form, Input, Typography } from "antd";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { App, Button, Flex, Form, Typography } from "antd";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { FormInput } from "@/components/form/FormInput";
 import { ROUTES } from "@/config/routes";
+import { useLogin } from "../hooks/useLogin";
 import { loginSchema, type LoginValues } from "../schemas";
+import type { ApiError } from "@/lib/api/client";
 
 const { Title, Text } = Typography;
 
 export function LoginForm() {
   const router = useRouter();
-  const [step, setStep] = useState<"credentials" | "totp">("credentials");
-  const [otp, setOtp] = useState("");
+  const { message } = App.useApp();
+  const loginMutation = useLogin();
 
   const { control, handleSubmit } = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { email: "", password: "" },
   });
 
-  // UI-only: credentials step advances to 2FA (TOTP required for DOCTOR/SUPER_ADMIN).
-  const onSubmit = handleSubmit(() => setStep("totp"));
-
-  const verify = () => router.push(ROUTES.patients);
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      await loginMutation.mutateAsync(values);
+      router.push(ROUTES.patients);
+    } catch (err) {
+      const apiErr = err as ApiError;
+      message.error(apiErr.message || "Sign in failed");
+    }
+  });
 
   return (
     <Flex vertical gap={4} style={{ marginBottom: 8 }}>
@@ -41,45 +47,32 @@ export function LoginForm() {
         </div>
       </Flex>
 
-      {step === "credentials" ? (
-        <Form layout="vertical" onSubmitCapture={onSubmit}>
-          <FormInput
-            control={control}
-            name="username"
-            label="Username"
-            placeholder="Enter username"
-            prefix={<UserOutlined />}
-          />
-          <FormInput
-            control={control}
-            name="password"
-            label="Password"
-            type="password"
-            placeholder="Enter password"
-            prefix={<LockOutlined />}
-          />
-          <Button type="primary" htmlType="submit" block size="middle">
-            Sign in
-          </Button>
-        </Form>
-      ) : (
-        <Flex vertical gap={16}>
-          <div>
-            <Text strong>Two-factor authentication</Text>
-            <br />
-            <Text type="secondary" style={{ fontSize: 13 }}>
-              Enter the 6-digit code from your authenticator app.
-            </Text>
-          </div>
-          <Input.OTP length={6} value={otp} onChange={setOtp} />
-          <Button type="primary" block size="middle" onClick={verify}>
-            Verify &amp; continue
-          </Button>
-          <Button type="link" size="small" onClick={() => setStep("credentials")}>
-            Back
-          </Button>
-        </Flex>
-      )}
+      <Form layout="vertical" onSubmitCapture={onSubmit}>
+        <FormInput
+          control={control}
+          name="email"
+          label="Email"
+          placeholder="doctor@example.com"
+          prefix={<MailOutlined />}
+        />
+        <FormInput
+          control={control}
+          name="password"
+          label="Password"
+          type="password"
+          placeholder="Enter password"
+          prefix={<LockOutlined />}
+        />
+        <Button
+          type="primary"
+          htmlType="submit"
+          block
+          size="middle"
+          loading={loginMutation.isPending}
+        >
+          Sign in
+        </Button>
+      </Form>
     </Flex>
   );
 }

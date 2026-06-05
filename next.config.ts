@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* API requests are handled by app/api route handlers (BFF + httpOnly cookie). */
 };
 
 export default nextConfig;

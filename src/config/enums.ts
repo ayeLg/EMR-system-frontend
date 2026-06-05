@@ -23,3 +23,13 @@ export const GENDER: Record<Gender, EnumMeta> = {
   FEMALE: { labelKey: "gender.female", color: "magenta" },
   OTHER: { labelKey: "gender.other", color: "default" },
 };
+
+export function getGenderMeta(gender?: Gender): EnumMeta | undefined {
+  return gender ? GENDER[gender] : undefined;
+}
+
+export function getPatientStatusMeta(
+  status?: PatientStatus,
+): EnumMeta | undefined {
+  return status ? PATIENT_STATUS[status] : undefined;
+}

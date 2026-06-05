@@ -5,8 +5,10 @@ export interface Patient {
   mrn: string;
   fullName: string;
   primaryPhone: string;
-  gender: Gender;
-  status: PatientStatus;
+  /** Omitted when the API does not expose gender yet. */
+  gender?: Gender;
+  /** Omitted when the API does not expose status yet. */
+  status?: PatientStatus;
 }
 
 export interface PatientAllergy {

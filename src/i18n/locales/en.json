@@ -29,6 +29,7 @@
     "clinicalDocs": "Clinical docs",
     "printPreviews": "Print previews",
     "masterData": "Master data",
+    "rbac": "Roles & permissions",
     "doctorSchedules": "Doctor schedules",
     "auditLogs": "Audit logs",
     "notifications": "Notifications"

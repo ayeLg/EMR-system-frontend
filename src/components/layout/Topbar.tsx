@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { useUIStore } from "@/store/ui-store";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 import { usePermissions } from "@/lib/rbac/usePermissions";
 import { LOCALE_LABELS } from "@/i18n/config";
 import { NotificationBell } from "@/features/notifications/NotificationBell";
@@ -31,6 +32,7 @@ export function Topbar({
   const toggleLocale = useUIStore((s) => s.toggleLocale);
   const toggleTheme = useUIStore((s) => s.toggleTheme);
   const { user } = usePermissions();
+  const logout = useLogout();
 
   return (
     <Flex align="center" gap={16} style={{ width: "100%" }}>
@@ -69,6 +71,9 @@ export function Topbar({
 
         <Dropdown
           menu={{
+            onClick: ({ key }) => {
+              if (key === "logout") logout();
+            },
             items: [
               {
                 key: "user",

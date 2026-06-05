@@ -10,7 +10,7 @@ import { FilterSelect } from "@/components/ui/FilterSelect";
 import { PageToolbar } from "@/components/ui/PageToolbar";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { StatusTag } from "@/components/ui/StatusTag";
-import { GENDER, PATIENT_STATUS } from "@/config/enums";
+import { getGenderMeta, getPatientStatusMeta } from "@/config/enums";
 import { ROUTES } from "@/config/routes";
 import { usePatients } from "../hooks/usePatients";
 import type { Patient } from "../types";
@@ -41,16 +41,25 @@ export function PatientTable() {
   const columns: TableProps<Patient>["columns"] = [
     { title: tp("name"), key: "name", render: (_, r) => `${r.fullName} · ${r.mrn}` },
     { title: tp("phone"), dataIndex: "primaryPhone", key: "phone" },
-    { title: tp("gender"), key: "gender", render: (_, r) => t(GENDER[r.gender].labelKey) },
+    {
+      title: tp("gender"),
+      key: "gender",
+      render: (_, r) => {
+        const meta = getGenderMeta(r.gender);
+        return meta ? t(meta.labelKey) : "—";
+      },
+    },
     {
       title: tp("status"),
       key: "status",
-      render: (_, r) => (
-        <StatusTag
-          labelKey={PATIENT_STATUS[r.status].labelKey}
-          color={PATIENT_STATUS[r.status].color}
-        />
-      ),
+      render: (_, r) => {
+        const meta = getPatientStatusMeta(r.status);
+        return meta ? (
+          <StatusTag labelKey={meta.labelKey} color={meta.color} />
+        ) : (
+          "—"
+        );
+      },
     },
   ];
 

@@ -1,17 +1,33 @@
 "use client";
 
-import { hasPermission, type Permission } from "./permissions";
+import type { CrudAction } from "@/features/rbac/rbac-modules";
+import {
+  canAction,
+  DEFAULT_ROLE_PERMISSIONS,
+  hasPermission,
+  type Permission,
+} from "./permissions";
 import { MOCK_USER } from "./mock-user";
+import { useAuthStore } from "@/store/auth-store";
 
 /**
- * Permission checks for the current user.
- * Backed by MOCK_USER now; later by the auth session.
+ * Permission checks for the current user (from `/auth/me` permissions, with fallback).
  */
 export function usePermissions() {
-  const role = MOCK_USER.role;
+  const user = useAuthStore((s) => s.user) ?? MOCK_USER;
+  const permissions =
+    user.permissions.length > 0
+      ? user.permissions
+      : DEFAULT_ROLE_PERMISSIONS[user.role];
+
   return {
-    role,
-    user: MOCK_USER,
-    can: (permission: Permission) => hasPermission(role, permission),
+    role: user.role,
+    roleCode: user.roleCode,
+    user,
+    permissions,
+    can: (permission: Permission | string) =>
+      hasPermission(permissions, permission),
+    canAction: (module: string, action: CrudAction) =>
+      canAction(permissions, module, action),
   };
 }

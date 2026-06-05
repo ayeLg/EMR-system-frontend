@@ -1,16 +1,12 @@
-import type { Role } from "./permissions";
+import { ALL_PERMISSIONS } from "./permissions";
+import type { CurrentUser } from "./current-user";
 
-export interface CurrentUser {
-  name: string;
-  role: Role;
-}
-
-/**
- * Mock authenticated user for the UI-only phase.
- * Change `role` to verify RBAC gating (e.g. "RECEPTIONIST" hides pharmacy/lab).
- * Later this comes from GET /api/me + the auth session.
- */
+/** Fallback when not signed in (MSW-only paths). */
 export const MOCK_USER: CurrentUser = {
+  id: "mock",
+  email: "doctor@example.com",
   name: "Dr. Aung Aung",
   role: "SUPER_ADMIN",
+  roleCode: "SUPER_ADMIN",
+  permissions: ALL_PERMISSIONS,
 };

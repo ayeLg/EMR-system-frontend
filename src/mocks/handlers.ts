@@ -6,7 +6,6 @@ import { MOCK_PRESCRIPTIONS, MOCK_INVENTORY } from "@/lib/mock/pharmacy";
 import { MOCK_LAB_ORDERS, getMockLabOrderDetail } from "@/lib/mock/laboratory";
 import { MOCK_INVOICES, getMockInvoiceDetail } from "@/lib/mock/billing";
 import { MOCK_STAFF } from "@/lib/mock/users";
-import { MOCK_USER } from "@/lib/rbac/mock-user";
 import { notFound, ok } from "./envelope";
 
 export const handlers = [
@@ -38,5 +37,4 @@ export const handlers = [
     return detail ? ok(detail) : notFound();
   }),
   http.get("/api/users", () => ok(MOCK_STAFF)),
-  http.get("/api/me", () => ok(MOCK_USER)),
 ];
