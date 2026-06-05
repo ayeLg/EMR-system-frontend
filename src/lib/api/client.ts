@@ -26,8 +26,8 @@ export const apiClient = axios.create({
 function isAuthExemptRequest(url: string | undefined): boolean {
   return Boolean(
     url?.includes("/auth/login") ||
-      url?.includes("/auth/logout") ||
-      url?.includes("/auth/refresh"),
+    url?.includes("/auth/logout") ||
+    url?.includes("/auth/refresh"),
   );
 }
 

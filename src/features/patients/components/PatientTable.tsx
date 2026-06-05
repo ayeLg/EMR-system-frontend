@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { TableProps } from "antd";
 import { useTranslations } from "next-intl";
 import { DataTable } from "@/components/common/DataTable";
+import { AsyncState } from "@/components/feedback/AsyncState";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { FilterSelect } from "@/components/ui/FilterSelect";
 import { PageToolbar } from "@/components/ui/PageToolbar";
@@ -19,7 +20,7 @@ export function PatientTable() {
   const t = useTranslations();
   const tp = useTranslations("patients");
   const router = useRouter();
-  const { data, isLoading } = usePatients();
+  const { data, error, isError, isLoading, refetch } = usePatients();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string | undefined>();
@@ -90,16 +91,23 @@ export function PatientTable() {
         />
       }
     >
-      <DataTable<Patient>
-        rowKey="id"
-        columns={columns}
-        dataSource={filtered}
+      <AsyncState
         loading={isLoading}
-        onRow={(record) => ({
-          onClick: () => router.push(`${ROUTES.patients}/${record.id}`),
-          style: { cursor: "pointer" },
-        })}
-      />
+        error={isError ? error : undefined}
+        empty={filtered.length === 0}
+        emptyDescription="No matching patients"
+        onRetry={() => void refetch()}
+      >
+        <DataTable<Patient>
+          rowKey="id"
+          columns={columns}
+          dataSource={filtered}
+          onRow={(record) => ({
+            onClick: () => router.push(`${ROUTES.patients}/${record.id}`),
+            style: { cursor: "pointer" },
+          })}
+        />
+      </AsyncState>
     </ContentCard>
   );
 }
