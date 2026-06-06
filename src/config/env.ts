@@ -7,8 +7,13 @@ export const API_BASE_URL =
 /**
  * NestJS origin for server-side route handlers (never exposed to the client).
  */
-export const API_BACKEND_URL =
-  process.env.API_BACKEND_URL?.replace(/\/$/, "") ?? "http://localhost:8000";
+const apiBackendUrl = process.env.API_BACKEND_URL;
+
+if (!apiBackendUrl) {
+  throw new Error("API_BACKEND_URL environment variable is required");
+}
+
+export const API_BACKEND_URL = apiBackendUrl.replace(/\/$/, "");
 const truthy = new Set(["1", "true", "yes", "on"]);
 const falsy = new Set(["0", "false", "no", "off"]);
 
