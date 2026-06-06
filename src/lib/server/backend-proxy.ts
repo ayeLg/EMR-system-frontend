@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { API_BACKEND_URL } from "@/config/env";
+import { API_BACKEND_URL } from "@/config/server-env";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,

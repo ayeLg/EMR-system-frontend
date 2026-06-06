@@ -4,16 +4,6 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "/api";
 
-/**
- * NestJS origin for server-side route handlers (never exposed to the client).
- */
-const apiBackendUrl = process.env.API_BACKEND_URL;
-
-if (!apiBackendUrl) {
-  throw new Error("API_BACKEND_URL environment variable is required");
-}
-
-export const API_BACKEND_URL = apiBackendUrl.replace(/\/$/, "");
 const truthy = new Set(["1", "true", "yes", "on"]);
 const falsy = new Set(["0", "false", "no", "off"]);
 
