@@ -1,7 +1,16 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { listRbacPermissions, listRbacRoles, setRolePermissions } from "../api/rbac-api";
+import {
+  createRbacRole,
+  deleteRbacRole,
+  listRbacPermissions,
+  listRbacRoles,
+  setRolePermissions,
+  updateRbacRole,
+  type CreateRolePayload,
+  type UpdateRolePayload,
+} from "../api/rbac-api";
 import { authQueryKeys } from "@/features/auth/hooks/useCurrentUser";
 
 export const rbacQueryKeys = {
@@ -22,6 +31,37 @@ export function useRbacRoles() {
     queryKey: rbacQueryKeys.roles,
     queryFn: listRbacRoles,
     staleTime: 30_000,
+  });
+}
+
+export function useCreateRole() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateRolePayload) => createRbacRole(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: rbacQueryKeys.roles });
+    },
+  });
+}
+
+export function useUpdateRole() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ roleId, payload }: { roleId: string; payload: UpdateRolePayload }) =>
+      updateRbacRole(roleId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: rbacQueryKeys.roles });
+    },
+  });
+}
+
+export function useDeleteRole() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (roleId: string) => deleteRbacRole(roleId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: rbacQueryKeys.roles });
+    },
   });
 }
 

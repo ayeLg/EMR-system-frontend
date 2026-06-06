@@ -11,6 +11,34 @@ export async function listRbacRoles(): Promise<RbacRole[]> {
   return data;
 }
 
+export interface CreateRolePayload {
+  name: string;
+  description?: string;
+}
+
+export interface UpdateRolePayload {
+  name?: string;
+  description?: string;
+}
+
+export async function createRbacRole(payload: CreateRolePayload): Promise<RbacRole> {
+  const { data } = await apiClient.post<RbacRole>("/rbac/roles", payload);
+  return data;
+}
+
+export async function updateRbacRole(
+  roleId: string,
+  payload: UpdateRolePayload,
+): Promise<RbacRole> {
+  const { data } = await apiClient.patch<RbacRole>(`/rbac/roles/${roleId}`, payload);
+  return data;
+}
+
+export async function deleteRbacRole(roleId: string): Promise<{ deleted: boolean }> {
+  const { data } = await apiClient.delete<{ deleted: boolean }>(`/rbac/roles/${roleId}`);
+  return data;
+}
+
 export async function setRolePermissions(
   roleId: string,
   permissionIds: string[],

@@ -5,7 +5,9 @@ import {
   BulbOutlined,
   GlobalOutlined,
   LogoutOutlined,
+  MenuFoldOutlined,
   MenuOutlined,
+  MenuUnfoldOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
@@ -20,15 +22,19 @@ const { Text } = Typography;
 
 export function Topbar({
   showHamburger,
+  showSidebarToggle,
   onOpenDrawer,
   showBrand,
 }: {
   showHamburger: boolean;
+  showSidebarToggle?: boolean;
   onOpenDrawer: () => void;
   showBrand?: boolean;
 }) {
   const t = useTranslations();
   const locale = useUIStore((s) => s.locale);
+  const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const toggleLocale = useUIStore((s) => s.toggleLocale);
   const toggleTheme = useUIStore((s) => s.toggleTheme);
   const { user } = usePermissions();
@@ -37,7 +43,23 @@ export function Topbar({
   return (
     <Flex align="center" gap={16} style={{ width: "100%" }}>
       {showHamburger ? (
-        <Button type="text" icon={<MenuOutlined />} onClick={onOpenDrawer} />
+        <Button
+          type="text"
+          className="emr-topbar-icon-btn"
+          icon={<MenuOutlined />}
+          onClick={onOpenDrawer}
+          aria-label={t("topbar.openMenu")}
+        />
+      ) : showSidebarToggle ? (
+        <Button
+          type="text"
+          className="emr-topbar-icon-btn emr-sidebar-toggle"
+          icon={
+            sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
+          }
+          onClick={toggleSidebar}
+          aria-label={t("topbar.toggleSidebar")}
+        />
       ) : null}
 
       {showBrand ? (

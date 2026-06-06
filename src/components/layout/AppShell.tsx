@@ -35,6 +35,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         >
           <Topbar
             showHamburger={isMobile}
+            showSidebarToggle={!isMobile}
             showBrand={isMobile}
             onOpenDrawer={() => setDrawerOpen(true)}
           />

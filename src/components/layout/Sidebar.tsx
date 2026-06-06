@@ -11,7 +11,6 @@ const { Sider } = Layout;
 
 export function Sidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
-  const setCollapsed = useUIStore((s) => s.setSidebarCollapsed);
   const themeMode = useUIStore((s) => s.theme);
   const t = useTranslations();
   const { token } = theme.useToken();
@@ -20,9 +19,8 @@ export function Sidebar() {
     <Sider
       className="emr-sidebar"
       theme={themeMode === "dark" ? "dark" : "light"}
-      collapsible
       collapsed={collapsed}
-      onCollapse={setCollapsed}
+      trigger={null}
       width={APP.sidebarWidth}
       collapsedWidth={APP.sidebarCollapsedWidth}
       style={{
@@ -40,7 +38,7 @@ export function Sidebar() {
           ) : null}
         </div>
         <div className="emr-sidebar-nav">
-          <NavMenu />
+          <NavMenu collapsed={collapsed} />
         </div>
       </div>
     </Sider>

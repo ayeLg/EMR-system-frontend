@@ -48,6 +48,14 @@ html[data-theme="dark"] {
   position: sticky;
   top: 0;
   align-self: flex-start;
+  transition:
+    width 0.2s ease,
+    min-width 0.2s ease,
+    max-width 0.2s ease;
+}
+
+.emr-app-shell > .emr-sidebar.ant-layout-sider .ant-layout-sider-trigger {
+  display: none;
 }
 
 .emr-sidebar-inner {
@@ -68,6 +76,29 @@ html[data-theme="dark"] {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.emr-sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.emr-sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.emr-sidebar-nav::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+html[data-theme="dark"] .emr-sidebar-nav {
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+html[data-theme="dark"] .emr-sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .emr-app-main {
@@ -157,6 +188,23 @@ html[data-theme="dark"] {
   user-select: none;
 }
 
+.emr-topbar-icon-btn.ant-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--ant-color-text-secondary, #64748b);
+  flex-shrink: 0;
+}
+
+.emr-topbar-icon-btn.ant-btn:hover {
+  color: var(--ant-color-primary, #1677ff);
+  background: var(--ant-color-primary-bg, #e6f4ff);
+}
+
+.emr-sidebar-toggle.ant-btn .anticon {
+  font-size: 16px;
+}
+
 .emr-topbar-actions .ant-btn {
   border-radius: 8px;
 }
@@ -197,6 +245,44 @@ html[data-theme="dark"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: opacity 0.15s ease;
+}
+
+.emr-sidebar.ant-layout-sider-collapsed .emr-sidebar-brand {
+  justify-content: center;
+  padding-inline: 12px;
+}
+
+.emr-sidebar.ant-layout-sider-collapsed .emr-sidebar-nav {
+  padding-inline: 4px;
+}
+
+.emr-sidebar .ant-menu-inline-collapsed {
+  width: 100%;
+}
+
+.emr-sidebar .ant-menu-inline-collapsed > .ant-menu-item,
+.emr-sidebar
+  .ant-menu-inline-collapsed
+  > .ant-menu-item-group
+  > .ant-menu-item-group-list
+  > .ant-menu-item {
+  padding-inline: calc(50% - 14px);
+}
+
+.emr-sidebar.ant-layout-sider-collapsed .ant-menu-item-group-title {
+  display: none;
+}
+
+.emr-sidebar.ant-layout-sider-collapsed .ant-menu-inline-collapsed .ant-menu-title-content {
+  display: none;
+  width: 0;
+  overflow: hidden;
+}
+
+.emr-sidebar.ant-layout-sider-collapsed .ant-menu-inline-collapsed .ant-menu-item,
+.emr-sidebar.ant-layout-sider-collapsed .ant-menu-inline-collapsed .ant-menu-submenu-title {
+  padding-inline: calc(50% - 14px) !important;
 }
 
 /* —— Data tables —— */

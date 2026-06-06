@@ -48,7 +48,9 @@
   "topbar": {
     "notifications": "Notifications",
     "profile": "Profile",
-    "logout": "Log out"
+    "logout": "Log out",
+    "toggleSidebar": "Toggle sidebar",
+    "openMenu": "Open navigation menu"
   },
   "appointments": {
     "subtitle": "Scheduling & queue management"

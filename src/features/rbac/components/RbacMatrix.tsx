@@ -1,7 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { App, Checkbox, Select, Table, Tag, Typography } from "antd";
+import { useEffect, useMemo, useState } from "react";
+import {
+  App,
+  Button,
+  Checkbox,
+  Flex,
+  Select,
+  Space,
+  Table,
+  Typography,
+} from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { ContentCard } from "@/components/ui/ContentCard";
 import {
@@ -10,20 +20,42 @@ import {
   permissionKey,
   type CrudAction,
 } from "../rbac-modules";
-import { useRbacPermissions, useRbacRoles, useSetRolePermissions } from "../hooks/useRbac";
+import {
+  useDeleteRole,
+  useRbacPermissions,
+  useRbacRoles,
+  useSetRolePermissions,
+} from "../hooks/useRbac";
 import type { RbacPermission, RbacRole } from "../types";
+import { RoleFormModal } from "./RoleFormModal";
 
 const { Text } = Typography;
 
 type ModuleRow = (typeof RBAC_MODULES)[number];
 
+function permissionIdSet(role: RbacRole | undefined): Set<string> {
+  return new Set(role?.permissions.map((p) => p.id) ?? []);
+}
+
+function setsEqual(a: Set<string>, b: Set<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const id of a) {
+    if (!b.has(id)) return false;
+  }
+  return true;
+}
+
 export function RbacMatrix() {
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const { data: permissions = [], isLoading: loadingPerms } = useRbacPermissions();
   const { data: roles = [], isLoading: loadingRoles } = useRbacRoles();
   const setPermissions = useSetRolePermissions();
-  const [pendingCell, setPendingCell] = useState<string | null>(null);
+  const deleteRole = useDeleteRole();
+
   const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>();
+  const [draftPermissionIds, setDraftPermissionIds] = useState<Set<string>>(new Set());
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<RbacRole | null>(null);
 
   const permissionByKey = useMemo(() => {
     const map = new Map<string, RbacPermission>();
@@ -35,47 +67,82 @@ export function RbacMatrix() {
 
   const activeRoleId = selectedRoleId ?? roles[0]?.id;
   const activeRole = roles.find((r) => r.id === activeRoleId);
+  const savedPermissionIds = useMemo(
+    () => permissionIdSet(activeRole),
+    [activeRole],
+  );
+  const isDirty = activeRole
+    ? !setsEqual(draftPermissionIds, savedPermissionIds)
+    : false;
+  const isLocked = activeRole?.code === "SUPER_ADMIN";
 
-  const permissionIdsByRole = useMemo(() => {
-    const map = new Map<string, Set<string>>();
-    for (const role of roles) {
-      map.set(role.id, new Set(role.permissions.map((p) => p.id)));
+  useEffect(() => {
+    setDraftPermissionIds(permissionIdSet(activeRole));
+  }, [activeRole?.id, activeRole?.permissions]);
+
+  const switchRole = (roleId: string) => {
+    if (isDirty) {
+      modal.confirm({
+        title: "Discard unsaved permission changes?",
+        content: "You have unsaved changes for the current role.",
+        okText: "Discard",
+        okType: "danger",
+        onOk: () => setSelectedRoleId(roleId),
+      });
+      return;
     }
-    return map;
-  }, [roles]);
+    setSelectedRoleId(roleId);
+  };
 
-  const togglePermission = async (
-    role: RbacRole,
-    permission: RbacPermission,
-    enabled: boolean,
-  ) => {
-    if (role.code === "SUPER_ADMIN") {
+  const toggleDraftPermission = (permission: RbacPermission, enabled: boolean) => {
+    if (isLocked) {
       message.warning("Super Admin always has full access.");
       return;
     }
+    setDraftPermissionIds((prev) => {
+      const next = new Set(prev);
+      if (enabled) next.add(permission.id);
+      else next.delete(permission.id);
+      return next;
+    });
+  };
 
-    const cellKey = `${role.id}:${permission.id}`;
-    setPendingCell(cellKey);
-
-    const current = permissionIdsByRole.get(role.id) ?? new Set<string>();
-    const next = new Set(current);
-    if (enabled) {
-      next.add(permission.id);
-    } else {
-      next.delete(permission.id);
-    }
-
+  const handleSavePermissions = async () => {
+    if (!activeRole || isLocked) return;
     try {
       await setPermissions.mutateAsync({
-        roleId: role.id,
-        permissionIds: [...next],
+        roleId: activeRole.id,
+        permissionIds: [...draftPermissionIds],
       });
+      message.success(`Permissions saved for ${activeRole.name}`);
     } catch (err) {
       const apiErr = err as { message?: string };
-      message.error(apiErr.message ?? "Failed to update role");
-    } finally {
-      setPendingCell(null);
+      message.error(apiErr.message ?? "Failed to save permissions");
     }
+  };
+
+  const handleDiscardPermissions = () => {
+    setDraftPermissionIds(new Set(savedPermissionIds));
+  };
+
+  const handleDeleteRole = () => {
+    if (!activeRole || isLocked) return;
+    modal.confirm({
+      title: `Delete role "${activeRole.name}"?`,
+      content: "This cannot be undone. The role must have no assigned users.",
+      okText: "Delete",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          await deleteRole.mutateAsync(activeRole.id);
+          message.success("Role deleted");
+          setSelectedRoleId(undefined);
+        } catch (err) {
+          const apiErr = err as { message?: string };
+          message.error(apiErr.message ?? "Failed to delete role");
+        }
+      },
+    });
   };
 
   const columns: ColumnsType<ModuleRow> = [
@@ -100,23 +167,16 @@ export function RbacMatrix() {
           return <Text type="secondary">—</Text>;
         }
 
-        const checked =
-          permissionIdsByRole.get(activeRole.id)?.has(permission.id) ?? false;
-        const cellKey = `${activeRole.id}:${permission.id}`;
-        const locked = activeRole.code === "SUPER_ADMIN";
+        const checked = isLocked
+          ? true
+          : draftPermissionIds.has(permission.id);
 
         return (
           <Checkbox
-            checked={locked ? true : checked}
-            disabled={locked}
-            onChange={(e) =>
-              void togglePermission(activeRole, permission, e.target.checked)
-            }
+            checked={checked}
+            disabled={isLocked}
+            onChange={(e) => toggleDraftPermission(permission, e.target.checked)}
             aria-label={`${row.label} ${col.label}`}
-            style={{
-              opacity: pendingCell === cellKey ? 0.5 : 1,
-              pointerEvents: pendingCell === cellKey ? "none" : undefined,
-            }}
           />
         );
       },
@@ -125,31 +185,77 @@ export function RbacMatrix() {
 
   return (
     <ContentCard>
-      <div style={{ marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
+      <Flex
+        wrap="wrap"
+        gap={12}
+        align="flex-end"
+        justify="space-between"
+        style={{ marginBottom: 16 }}
+      >
         <div>
           <Text type="secondary" style={{ display: "block", marginBottom: 4 }}>
             Role
           </Text>
           <Select
-            style={{ minWidth: 280 }}
+            style={{ minWidth: 260 }}
             placeholder="Select role"
             loading={loadingRoles}
             value={activeRoleId}
-            onChange={setSelectedRoleId}
+            onChange={switchRole}
             options={roles.map((role) => ({
               value: role.id,
-              label: `${role.name} (${role.code})`,
+              label: role.name,
             }))}
           />
         </div>
-        {activeRole && activeRole.userCount > 0 ? (
-          <Text type="secondary">{activeRole.userCount} users with this role</Text>
-        ) : null}
-      </div>
+
+        <Space wrap>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setEditingRole(null);
+              setRoleModalOpen(true);
+            }}
+          >
+            Add role
+          </Button>
+          <Button
+            icon={<EditOutlined />}
+            disabled={!activeRole}
+            onClick={() => {
+              if (!activeRole) return;
+              setEditingRole(activeRole);
+              setRoleModalOpen(true);
+            }}
+          >
+            Edit role
+          </Button>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            disabled={!activeRole || isLocked}
+            onClick={handleDeleteRole}
+          >
+            Delete role
+          </Button>
+        </Space>
+      </Flex>
+
+      {activeRole?.description ? (
+        <Text type="secondary" style={{ display: "block", marginBottom: 12 }}>
+          {activeRole.description}
+          {activeRole.userCount > 0 ? ` · ${activeRole.userCount} users` : ""}
+        </Text>
+      ) : activeRole && activeRole.userCount > 0 ? (
+        <Text type="secondary" style={{ display: "block", marginBottom: 12 }}>
+          {activeRole.userCount} users with this role
+        </Text>
+      ) : null}
 
       <Text type="secondary" style={{ display: "block", marginBottom: 12 }}>
-        Use checkboxes to grant List (read), Create, Edit (update), and Delete per resource.
-        Changes apply after users sign in again or refresh their session.
+        Grant List (read), Create, Edit (update), and Delete per resource. Click Save
+        permissions when finished.
       </Text>
 
       <Table<ModuleRow>
@@ -162,13 +268,35 @@ export function RbacMatrix() {
         pagination={false}
       />
 
-      <div style={{ marginTop: 12 }}>
-        <Tag>SUPER_ADMIN</Tag>
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          {" "}
-          is locked to all permissions (server-enforced).
+      <Flex justify="flex-end" gap={8} style={{ marginTop: 16 }}>
+        <Button disabled={!isDirty || isLocked} onClick={handleDiscardPermissions}>
+          Discard
+        </Button>
+        <Button
+          type="primary"
+          disabled={!isDirty || isLocked || setPermissions.isPending}
+          loading={setPermissions.isPending}
+          onClick={() => void handleSavePermissions()}
+        >
+          Save permissions
+        </Button>
+      </Flex>
+
+      {isLocked ? (
+        <Text type="secondary" style={{ display: "block", marginTop: 12, fontSize: 12 }}>
+          Super Admin permissions are locked (server-enforced).
         </Text>
-      </div>
+      ) : null}
+
+      <RoleFormModal
+        open={roleModalOpen}
+        role={editingRole}
+        onClose={() => {
+          setRoleModalOpen(false);
+          setEditingRole(null);
+        }}
+        onSaved={(role) => setSelectedRoleId(role.id)}
+      />
     </ContentCard>
   );
 }

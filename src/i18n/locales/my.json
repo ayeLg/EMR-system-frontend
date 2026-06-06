@@ -48,7 +48,9 @@
   "topbar": {
     "notifications": "အကြောင်းကြားချက်များ",
     "profile": "ပရိုဖိုင်",
-    "logout": "ထွက်ရန်"
+    "logout": "ထွက်ရန်",
+    "toggleSidebar": "ဘေးဘားကို ဖွင့်/ပိတ်",
+    "openMenu": "မီနူး ဖွင့်ရန်"
   },
   "appointments": {
     "subtitle": "ချိန်းဆိုမှုနှင့် တန်းစီမှု စီမံခန့်ခွဲမှု"
