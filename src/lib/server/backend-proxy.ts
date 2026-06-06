@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { API_BACKEND_URL } from "@/config/server-env";
+import { getApiBackendUrl } from "@/config/server-env";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
@@ -10,7 +10,7 @@ import {
 import { isApiSuccess } from "@/lib/api/types";
 
 function backendUrl(path: string, search: string): string {
-  const base = API_BACKEND_URL.replace(/\/$/, "");
+  const base = getApiBackendUrl();
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return `${base}/api${normalized}${search}`;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   App,
   Button,
@@ -33,6 +33,12 @@ const { Text } = Typography;
 
 type ModuleRow = (typeof RBAC_MODULES)[number];
 
+interface PermissionDraft {
+  roleId: string;
+  permissionIds: Set<string>;
+  sourcePermissionIds: Set<string>;
+}
+
 function permissionIdSet(role: RbacRole | undefined): Set<string> {
   return new Set(role?.permissions.map((p) => p.id) ?? []);
 }
@@ -53,7 +59,9 @@ export function RbacMatrix() {
   const deleteRole = useDeleteRole();
 
   const [selectedRoleId, setSelectedRoleId] = useState<string | undefined>();
-  const [draftPermissionIds, setDraftPermissionIds] = useState<Set<string>>(new Set());
+  const [permissionDraft, setPermissionDraft] = useState<PermissionDraft | null>(
+    null,
+  );
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<RbacRole | null>(null);
 
@@ -71,39 +79,52 @@ export function RbacMatrix() {
     () => permissionIdSet(activeRole),
     [activeRole],
   );
+  const activeDraft =
+    activeRole &&
+    permissionDraft?.roleId === activeRole.id &&
+    setsEqual(permissionDraft.sourcePermissionIds, savedPermissionIds)
+      ? permissionDraft
+      : null;
+  const draftPermissionIds =
+    activeDraft?.permissionIds ?? savedPermissionIds;
   const isDirty = activeRole
     ? !setsEqual(draftPermissionIds, savedPermissionIds)
     : false;
   const isLocked = activeRole?.code === "SUPER_ADMIN";
 
-  useEffect(() => {
-    setDraftPermissionIds(permissionIdSet(activeRole));
-  }, [activeRole?.id, activeRole?.permissions]);
-
   const switchRole = (roleId: string) => {
+    const selectRole = () => {
+      setPermissionDraft(null);
+      setSelectedRoleId(roleId);
+    };
+
     if (isDirty) {
       modal.confirm({
         title: "Discard unsaved permission changes?",
         content: "You have unsaved changes for the current role.",
         okText: "Discard",
         okType: "danger",
-        onOk: () => setSelectedRoleId(roleId),
+        onOk: selectRole,
       });
       return;
     }
-    setSelectedRoleId(roleId);
+    selectRole();
   };
 
   const toggleDraftPermission = (permission: RbacPermission, enabled: boolean) => {
-    if (isLocked) {
+    if (!activeRole || isLocked) {
       message.warning("Super Admin always has full access.");
       return;
     }
-    setDraftPermissionIds((prev) => {
-      const next = new Set(prev);
+    setPermissionDraft(() => {
+      const next = new Set(draftPermissionIds);
       if (enabled) next.add(permission.id);
       else next.delete(permission.id);
-      return next;
+      return {
+        roleId: activeRole.id,
+        permissionIds: next,
+        sourcePermissionIds: new Set(savedPermissionIds),
+      };
     });
   };
 
@@ -122,7 +143,7 @@ export function RbacMatrix() {
   };
 
   const handleDiscardPermissions = () => {
-    setDraftPermissionIds(new Set(savedPermissionIds));
+    setPermissionDraft(null);
   };
 
   const handleDeleteRole = () => {
@@ -136,6 +157,7 @@ export function RbacMatrix() {
         try {
           await deleteRole.mutateAsync(activeRole.id);
           message.success("Role deleted");
+          setPermissionDraft(null);
           setSelectedRoleId(undefined);
         } catch (err) {
           const apiErr = err as { message?: string };
@@ -295,7 +317,10 @@ export function RbacMatrix() {
           setRoleModalOpen(false);
           setEditingRole(null);
         }}
-        onSaved={(role) => setSelectedRoleId(role.id)}
+        onSaved={(role) => {
+          setPermissionDraft(null);
+          setSelectedRoleId(role.id);
+        }}
       />
     </ContentCard>
   );
