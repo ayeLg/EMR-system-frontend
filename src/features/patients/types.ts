@@ -34,6 +34,7 @@ export interface PatientDetail extends Patient {
   bloodType: string;
   email?: string;
   address?: string;
+  city?: string;
   township?: string;
   allergies: PatientAllergy[];
   recentEncounters: EncounterSummary[];

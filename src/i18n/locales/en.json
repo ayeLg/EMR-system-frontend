@@ -7,7 +7,9 @@
     "search": "Search patients, MRN, phone…",
     "searchAppointments": "Search appointments, patient, doctor…",
     "filterStatus": "Filter status",
-    "globalSearch": "Search patients, appointments, records…"
+    "globalSearch": "Search patients, appointments, records…",
+    "delete": "Delete",
+    "cancel": "Cancel"
   },
   "groups": {
     "clinical": "Clinical",
@@ -94,7 +96,9 @@
     "name": "Name / MRN",
     "phone": "Phone",
     "gender": "Gender",
-    "status": "Status"
+    "status": "Status",
+    "deleteConfirm": "Delete this patient?",
+    "deleted": "Patient deleted"
   },
   "status": {
     "active": "Active",

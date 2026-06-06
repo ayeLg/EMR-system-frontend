@@ -83,6 +83,7 @@ export function PatientDetailView({ id }: { id: string }) {
                 <Descriptions.Item label="NRC">{data.nrcNumber ?? "—"}</Descriptions.Item>
                 <Descriptions.Item label="Phone">{data.primaryPhone}</Descriptions.Item>
                 <Descriptions.Item label="Email">{data.email ?? "—"}</Descriptions.Item>
+                <Descriptions.Item label="City">{data.city ?? "—"}</Descriptions.Item>
                 <Descriptions.Item label="Township">{data.township ?? "—"}</Descriptions.Item>
                 <Descriptions.Item label="Address">{data.address ?? "—"}</Descriptions.Item>
               </Descriptions>
