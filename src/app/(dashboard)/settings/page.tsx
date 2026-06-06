@@ -1,61 +1,103 @@
 "use client";
 
-import { App, Button, Card, Form, Input, Segmented, Tabs, Typography } from "antd";
+import { App, Button, Form, Input, Segmented, Tabs, Tag } from "antd";
 import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { SettingRow } from "@/features/settings/components/SettingRow";
+import { SettingsTabPanel } from "@/features/settings/components/SettingsTabPanel";
 import { useUIStore } from "@/store/ui-store";
 import { usePermissions } from "@/lib/rbac/usePermissions";
 
-const { Text } = Typography;
-
 function ProfileTab() {
+  const t = useTranslations("settings");
   const { user } = usePermissions();
   const { message } = App.useApp();
+
   return (
-    <Card size="small" style={{ maxWidth: 520 }}>
+    <SettingsTabPanel
+      lead={t("profileLead")}
+      footer={
+        <Button type="primary" form="settings-profile-form" htmlType="submit">
+          {t("saveProfile")}
+        </Button>
+      }
+    >
       <Form
+        id="settings-profile-form"
         layout="vertical"
-        initialValues={{ fullName: user.name, role: user.role, email: "aung@hospital.mm" }}
+        requiredMark={false}
+        className="emr-settings-rows"
+        initialValues={{
+          fullName: user.name,
+          role: user.role,
+          email: "aung@hospital.mm",
+        }}
         onFinish={() => message.success("Profile saved (mock).")}
       >
-        <Form.Item name="fullName" label="Full name">
-          <Input />
-        </Form.Item>
-        <Form.Item name="role" label="Role">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="email" label="Email">
-          <Input />
-        </Form.Item>
-        <Button type="primary" htmlType="submit">
-          Save
-        </Button>
+        <SettingRow title={t("fullName")} description={t("fullNameHint")}>
+          <Form.Item name="fullName" noStyle>
+            <Input />
+          </Form.Item>
+        </SettingRow>
+        <SettingRow title={t("role")} description={t("roleHint")}>
+          <Form.Item name="role" noStyle>
+            <Input disabled />
+          </Form.Item>
+        </SettingRow>
+        <SettingRow title={t("email")} description={t("emailHint")}>
+          <Form.Item name="email" noStyle>
+            <Input />
+          </Form.Item>
+        </SettingRow>
       </Form>
-    </Card>
+    </SettingsTabPanel>
   );
 }
 
 function PreferencesTab() {
+  const t = useTranslations("settings");
+
   const theme = useUIStore((s) => s.theme);
   const setTheme = useUIStore((s) => s.setTheme);
   const locale = useUIStore((s) => s.locale);
   const setLocale = useUIStore((s) => s.setLocale);
+  const navLayout = useUIStore((s) => s.navLayout);
+  const setNavLayout = useUIStore((s) => s.setNavLayout);
 
   return (
-    <Card size="small" style={{ maxWidth: 520 }}>
-      <Form layout="vertical">
-        <Form.Item label="Theme">
+    <SettingsTabPanel lead={t("preferencesLead")}>
+      <div className="emr-settings-rows">
+        <SettingRow
+          title={t("navigationLayout")}
+          description={t("navigationLayoutHint")}
+        >
           <Segmented
+            block
+            className="emr-settings-segmented"
+            value={navLayout}
+            onChange={(v) => setNavLayout(v as "sidebar" | "menubar")}
+            options={[
+              { label: t("navigationSidebar"), value: "sidebar" },
+              { label: t("navigationMenubar"), value: "menubar" },
+            ]}
+          />
+        </SettingRow>
+        <SettingRow title={t("theme")} description={t("themeHint")}>
+          <Segmented
+            block
+            className="emr-settings-segmented"
             value={theme}
             onChange={(v) => setTheme(v as "light" | "dark")}
             options={[
-              { label: "Light", value: "light" },
-              { label: "Dark", value: "dark" },
+              { label: t("themeLight"), value: "light" },
+              { label: t("themeDark"), value: "dark" },
             ]}
           />
-        </Form.Item>
-        <Form.Item label="Language">
+        </SettingRow>
+        <SettingRow title={t("language")} description={t("languageHint")}>
           <Segmented
+            block
+            className="emr-settings-segmented"
             value={locale}
             onChange={(v) => setLocale(v as "en" | "my")}
             options={[
@@ -63,44 +105,68 @@ function PreferencesTab() {
               { label: "မြန်မာ", value: "my" },
             ]}
           />
-        </Form.Item>
-      </Form>
-    </Card>
+        </SettingRow>
+      </div>
+    </SettingsTabPanel>
   );
 }
 
 function SecurityTab() {
+  const t = useTranslations("settings");
   const { message } = App.useApp();
+
   return (
-    <Card size="small" style={{ maxWidth: 520 }}>
-      <Form layout="vertical" onFinish={() => message.success("Password updated (mock).")}>
-        <Form.Item label="Two-factor authentication">
-          <Text type="success">● Enabled (TOTP)</Text>
-        </Form.Item>
-        <Form.Item name="current" label="Current password">
-          <Input.Password />
-        </Form.Item>
-        <Form.Item name="next" label="New password">
-          <Input.Password />
-        </Form.Item>
-        <Button type="primary" htmlType="submit">
-          Update password
+    <SettingsTabPanel
+      lead={t("securityLead")}
+      footer={
+        <Button type="primary" form="settings-security-form" htmlType="submit">
+          {t("updatePassword")}
         </Button>
+      }
+    >
+      <Form
+        id="settings-security-form"
+        layout="vertical"
+        requiredMark={false}
+        className="emr-settings-rows"
+        onFinish={() => message.success("Password updated (mock).")}
+      >
+        <SettingRow
+          title={t("twoFactor")}
+          description={t("twoFactorHint")}
+        >
+          <Tag color="success">{t("twoFactorEnabled")}</Tag>
+        </SettingRow>
+        <SettingRow title={t("currentPassword")}>
+          <Form.Item name="current" noStyle>
+            <Input.Password />
+          </Form.Item>
+        </SettingRow>
+        <SettingRow title={t("newPassword")} description={t("newPasswordHint")}>
+          <Form.Item name="next" noStyle>
+            <Input.Password />
+          </Form.Item>
+        </SettingRow>
       </Form>
-    </Card>
+    </SettingsTabPanel>
   );
 }
 
 export default function SettingsPage() {
   const t = useTranslations();
+
   return (
     <>
-      <PageHeader title={t("nav.settings")} subtitle="Account & preferences" />
+      <PageHeader title={t("nav.settings")} subtitle={t("settings.subtitle")} />
       <Tabs
         items={[
-          { key: "profile", label: "Profile", children: <ProfileTab /> },
-          { key: "preferences", label: "Preferences", children: <PreferencesTab /> },
-          { key: "security", label: "Security", children: <SecurityTab /> },
+          { key: "profile", label: t("settings.tabProfile"), children: <ProfileTab /> },
+          {
+            key: "preferences",
+            label: t("settings.tabPreferences"),
+            children: <PreferencesTab />,
+          },
+          { key: "security", label: t("settings.tabSecurity"), children: <SecurityTab /> },
         ]}
       />
     </>

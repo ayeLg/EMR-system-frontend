@@ -9,9 +9,11 @@ import { NAV_ITEMS, NAV_GROUP_ORDER } from "@/config/nav";
 import { usePermissions } from "@/lib/rbac/usePermissions";
 
 export function NavMenu({
+  mode = "inline",
   collapsed = false,
   onNavigate,
 }: {
+  mode?: "inline" | "horizontal";
   collapsed?: boolean;
   onNavigate?: () => void;
 }) {
@@ -24,7 +26,7 @@ export function NavMenu({
 
   const toMenuItem = (item: (typeof NAV_ITEMS)[number]) => ({
     key: item.path,
-    icon: item.icon,
+    icon: mode === "inline" ? item.icon : undefined,
     title: tNav(item.labelKey),
     label: (
       <Link href={item.path} onClick={onNavigate}>
@@ -33,30 +35,46 @@ export function NavMenu({
     ),
   });
 
-  const items: MenuProps["items"] = collapsed
-    ? visibleItems.map(toMenuItem)
-    : NAV_GROUP_ORDER.map((group) => {
-        const children = visibleItems
-          .filter((item) => item.group === group)
-          .map(toMenuItem);
+  const items: MenuProps["items"] =
+    mode === "inline" && collapsed
+      ? visibleItems.map(toMenuItem)
+      : mode === "horizontal"
+      ? NAV_GROUP_ORDER.map((group) => {
+          const children = visibleItems
+            .filter((item) => item.group === group)
+            .map(toMenuItem);
 
-        if (children.length === 0) return null;
+          if (children.length === 0) return null;
 
-        return {
-          key: `group-${group}`,
-          type: "group" as const,
-          label: tGroup(group),
-          children,
-        };
-      }).filter((g): g is NonNullable<typeof g> => g !== null);
+          return {
+            key: `group-${group}`,
+            label: tGroup(group),
+            children,
+          };
+        }).filter((g): g is NonNullable<typeof g> => g !== null)
+      : NAV_GROUP_ORDER.map((group) => {
+          const children = visibleItems
+            .filter((item) => item.group === group)
+            .map(toMenuItem);
+
+          if (children.length === 0) return null;
+
+          return {
+            key: `group-${group}`,
+            type: "group" as const,
+            label: tGroup(group),
+            children,
+          };
+        }).filter((g): g is NonNullable<typeof g> => g !== null);
 
   return (
     <Menu
-      mode="inline"
-      inlineCollapsed={collapsed}
+      mode={mode}
+      {...(mode === "inline" ? { inlineCollapsed: collapsed } : {})}
       selectedKeys={[pathname]}
       items={items}
-      style={{ border: "none" }}
+      className={mode === "horizontal" ? "emr-header-menu" : undefined}
+      style={{ border: "none", background: "transparent" }}
     />
   );
 }

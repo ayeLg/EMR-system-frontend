@@ -1,27 +1,43 @@
 "use client";
 
+import { Button } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { useIsMac } from "@/hooks/useIsMac";
 import { useUIStore } from "@/store/ui-store";
 
 /** Topbar search field — opens the command palette (⌘K / Ctrl+K). */
-export function GlobalSearchTrigger() {
+export function GlobalSearchTrigger({ compact = false }: { compact?: boolean }) {
   const t = useTranslations("common");
   const isMac = useIsMac();
   const setOpen = useUIStore((s) => s.setCommandPaletteOpen);
 
+  const open = () => setOpen(true);
   const shortcutLabel = isMac ? "⌘K" : "Ctrl+K";
+
+  if (compact) {
+    return (
+      <Button
+        type="text"
+        className="emr-topbar-icon-btn"
+        icon={<SearchOutlined />}
+        onClick={open}
+        aria-label={t("globalSearch")}
+        aria-haspopup="dialog"
+      />
+    );
+  }
 
   return (
     <SearchInput
       wide
       readOnly
       placeholder={t("globalSearch")}
-      onClick={() => setOpen(true)}
+      onClick={open}
       onFocus={(e) => {
         e.target.blur();
-        setOpen(true);
+        open();
       }}
       suffix={
         <kbd className="emr-global-search-kbd" aria-hidden>

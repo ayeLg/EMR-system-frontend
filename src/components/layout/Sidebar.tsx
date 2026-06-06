@@ -38,7 +38,7 @@ export function Sidebar() {
           ) : null}
         </div>
         <div className="emr-sidebar-nav">
-          <NavMenu collapsed={collapsed} />
+          <NavMenu mode="inline" collapsed={collapsed} />
         </div>
       </div>
     </Sider>
