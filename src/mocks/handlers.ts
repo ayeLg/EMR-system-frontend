@@ -1,15 +1,6 @@
 import { http } from "msw";
-import {
-  MOCK_PATIENTS,
-  addMockPatient,
-  getMockPatientDetail,
-  removeMockPatient,
-  updateMockPatient,
-} from "@/lib/mock/patients";
-import type {
-  CreatePatientPayload,
-  UpdatePatientPayload,
-} from "@/features/patients/api/backend-types";
+// Patients are fully bound to the live backend API — no mock handlers here, so
+// /api/patients* requests pass through (onUnhandledRequest: "bypass") to NestJS.
 import { MOCK_APPOINTMENTS } from "@/lib/mock/appointments";
 import { MOCK_ENCOUNTERS, getMockEncounterDetail } from "@/lib/mock/encounters";
 import { MOCK_PRESCRIPTIONS, MOCK_INVENTORY } from "@/lib/mock/pharmacy";
@@ -40,26 +31,6 @@ export const handlers = [
   http.get("/api/encounters/:id", ({ params }) => {
     const detail = getMockEncounterDetail(String(params.id));
     return detail ? ok(detail) : notFound();
-  }),
-  http.get("/api/patients", () =>
-    ok(MOCK_PATIENTS.filter((p) => p.isActive)),
-  ),
-  http.get("/api/patients/:id", ({ params }) => {
-    const detail = getMockPatientDetail(String(params.id));
-    return detail ? ok(detail) : notFound();
-  }),
-  http.post("/api/patients", async ({ request }) => {
-    const payload = (await request.json()) as CreatePatientPayload;
-    return ok(addMockPatient(payload));
-  }),
-  http.patch("/api/patients/:id", async ({ params, request }) => {
-    const payload = (await request.json()) as UpdatePatientPayload;
-    const updated = updateMockPatient(String(params.id), payload);
-    return updated ? ok(updated) : notFound();
-  }),
-  http.delete("/api/patients/:id", ({ params }) => {
-    const removed = removeMockPatient(String(params.id));
-    return removed ? ok({ deleted: true }) : notFound();
   }),
   http.get("/api/users", () => ok(MOCK_STAFF)),
 ];
