@@ -12,8 +12,18 @@ function redact(value: unknown): unknown {
   }
 
   if (value && typeof value === "object") {
-    if (value instanceof Error) {
-      return { name: value.name, message: value.message };
+    if (
+      value instanceof Error ||
+      Object.prototype.toString.call(value) === "[object Error]" ||
+      ("message" in value && typeof (value as Record<string, unknown>).message === "string" &&
+       "stack" in value && typeof (value as Record<string, unknown>).stack === "string")
+    ) {
+      const err = value as Error;
+      return {
+        name: err.name || "Error",
+        message: err.message,
+        stack: err.stack,
+      };
     }
 
     return Object.fromEntries(

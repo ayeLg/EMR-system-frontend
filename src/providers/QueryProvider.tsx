@@ -15,6 +15,14 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         queryCache: new QueryCache({
           onError: (error, query) => {
+            const status = (error as { status?: number })?.status;
+            if (status === 401 || status === 403 || status === 404) {
+              logger.warn(`Query failed (${status})`, {
+                error,
+                queryKey: query.queryKey,
+              });
+              return;
+            }
             logger.error("Query failed", {
               error,
               queryKey: query.queryKey,
@@ -23,6 +31,11 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
         }),
         mutationCache: new MutationCache({
           onError: (error) => {
+            const status = (error as { status?: number })?.status;
+            if (status === 401 || status === 403 || status === 404) {
+              logger.warn(`Mutation failed (${status})`, { error });
+              return;
+            }
             logger.error("Mutation failed", { error });
           },
         }),
