@@ -93,7 +93,7 @@ export function NurseQueue() {
             <Col xs={12} md={6}><Form.Item name="painScore" label="Pain (0-10)"><InputNumber min={0} max={10} style={{ width: "100%" }} /></Form.Item></Col>
             <Col xs={12} md={6}>
               <Form.Item label="BMI (auto)">
-                <Statistic value={bmi ?? "—"} valueStyle={{ fontSize: 20 }} />
+                <Statistic value={bmi ?? "—"} styles={{ content: { fontSize: 20 } }} />
               </Form.Item>
             </Col>
           </Row>
