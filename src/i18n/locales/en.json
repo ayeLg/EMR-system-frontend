@@ -7,7 +7,9 @@
     "search": "Search patients, MRN, phone…",
     "searchAppointments": "Search appointments, patient, doctor…",
     "filterStatus": "Filter status",
-    "globalSearch": "Search patients, appointments, records…"
+    "globalSearch": "Search patients, appointments, records…",
+    "delete": "Delete",
+    "cancel": "Cancel"
   },
   "groups": {
     "clinical": "Clinical",
@@ -29,6 +31,7 @@
     "clinicalDocs": "Clinical docs",
     "printPreviews": "Print previews",
     "masterData": "Master data",
+    "rbac": "Roles & permissions",
     "doctorSchedules": "Doctor schedules",
     "auditLogs": "Audit logs",
     "notifications": "Notifications"
@@ -44,10 +47,45 @@
       "patients": "Patients"
     }
   },
+  "settings": {
+    "subtitle": "Account & preferences",
+    "tabProfile": "Profile",
+    "tabPreferences": "Preferences",
+    "tabSecurity": "Security",
+    "profileLead": "Your name and contact information shown across the system.",
+    "preferencesLead": "Appearance and layout. Changes apply immediately.",
+    "securityLead": "Password and sign-in security for your account.",
+    "fullName": "Full name",
+    "fullNameHint": "Shown in the top bar and audit logs.",
+    "role": "Role",
+    "roleHint": "Assigned by your administrator.",
+    "email": "Email",
+    "emailHint": "Used for notifications and password recovery.",
+    "saveProfile": "Save profile",
+    "navigationLayout": "Navigation layout",
+    "navigationLayoutHint": "Sidebar on the left or menu bar across the top.",
+    "navigationSidebar": "Sidebar",
+    "navigationMenubar": "Menu bar",
+    "theme": "Theme",
+    "themeHint": "Light or dark interface.",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "languageHint": "Interface language.",
+    "twoFactor": "Two-factor authentication",
+    "twoFactorHint": "Extra sign-in protection with an authenticator app.",
+    "twoFactorEnabled": "Enabled (TOTP)",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "newPasswordHint": "At least 8 characters.",
+    "updatePassword": "Update password"
+  },
   "topbar": {
     "notifications": "Notifications",
     "profile": "Profile",
-    "logout": "Log out"
+    "logout": "Log out",
+    "toggleSidebar": "Toggle sidebar",
+    "openMenu": "Open navigation menu"
   },
   "appointments": {
     "subtitle": "Scheduling & queue management"
@@ -58,7 +96,9 @@
     "name": "Name / MRN",
     "phone": "Phone",
     "gender": "Gender",
-    "status": "Status"
+    "status": "Status",
+    "deleteConfirm": "Delete this patient?",
+    "deleted": "Patient deleted"
   },
   "status": {
     "active": "Active",

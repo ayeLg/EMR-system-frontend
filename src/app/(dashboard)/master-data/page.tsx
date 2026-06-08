@@ -3,14 +3,6 @@
 import { Tabs } from "antd";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { MasterCrud } from "@/features/master-data/MasterCrud";
-import {
-  DEPARTMENTS,
-  SERVICES,
-  MEDICATIONS,
-  LAB_TESTS,
-  WARDS,
-  INSURANCE_PROVIDERS,
-} from "@/features/master-data/data";
 
 export default function MasterDataPage() {
   return (
@@ -23,8 +15,9 @@ export default function MasterDataPage() {
             label: "Departments",
             children: (
               <MasterCrud
+                resource="departments"
                 entity="Department"
-                initialData={DEPARTMENTS}
+                showActiveToggle
                 columns={[
                   { title: "Code", dataIndex: "code", key: "code" },
                   { title: "Name", dataIndex: "name", key: "name" },
@@ -43,8 +36,8 @@ export default function MasterDataPage() {
             label: "Services",
             children: (
               <MasterCrud
+                resource="services"
                 entity="Service"
-                initialData={SERVICES}
                 columns={[
                   { title: "Code", dataIndex: "code", key: "code" },
                   { title: "Name", dataIndex: "name", key: "name" },
@@ -54,7 +47,7 @@ export default function MasterDataPage() {
                 fields={[
                   { name: "code", label: "Code", required: true },
                   { name: "name", label: "Name", required: true },
-                  { name: "category", label: "Category" },
+                  { name: "category", label: "Category", required: true },
                   { name: "price", label: "Price (Ks)", type: "number", required: true },
                   { name: "taxRate", label: "Tax rate (%)", type: "number" },
                 ]}
@@ -66,8 +59,8 @@ export default function MasterDataPage() {
             label: "Medications",
             children: (
               <MasterCrud
+                resource="medications"
                 entity="Medication"
-                initialData={MEDICATIONS}
                 columns={[
                   { title: "Code", dataIndex: "code", key: "code" },
                   { title: "Generic name", dataIndex: "genericName", key: "genericName" },
@@ -77,9 +70,9 @@ export default function MasterDataPage() {
                 fields={[
                   { name: "code", label: "Code", required: true },
                   { name: "genericName", label: "Generic name", required: true },
-                  { name: "strength", label: "Strength" },
-                  { name: "form", label: "Form" },
-                  { name: "unit", label: "Unit" },
+                  { name: "strength", label: "Strength", required: true },
+                  { name: "form", label: "Form", required: true },
+                  { name: "unit", label: "Unit", required: true },
                 ]}
               />
             ),
@@ -89,8 +82,8 @@ export default function MasterDataPage() {
             label: "Lab tests",
             children: (
               <MasterCrud
+                resource="lab-tests"
                 entity="Lab test"
-                initialData={LAB_TESTS}
                 columns={[
                   { title: "Code", dataIndex: "code", key: "code" },
                   { title: "Name", dataIndex: "name", key: "name" },
@@ -101,8 +94,8 @@ export default function MasterDataPage() {
                 fields={[
                   { name: "code", label: "Code", required: true },
                   { name: "name", label: "Name", required: true },
-                  { name: "category", label: "Category" },
-                  { name: "sampleType", label: "Sample type" },
+                  { name: "category", label: "Category", required: true },
+                  { name: "sampleType", label: "Sample type", required: true },
                   { name: "price", label: "Price (Ks)", type: "number", required: true },
                 ]}
               />
@@ -113,8 +106,8 @@ export default function MasterDataPage() {
             label: "Wards",
             children: (
               <MasterCrud
+                resource="wards"
                 entity="Ward"
-                initialData={WARDS}
                 columns={[
                   { title: "Code", dataIndex: "code", key: "code" },
                   { title: "Name", dataIndex: "name", key: "name" },
@@ -124,7 +117,13 @@ export default function MasterDataPage() {
                 fields={[
                   { name: "code", label: "Code", required: true },
                   { name: "name", label: "Name", required: true },
-                  { name: "department", label: "Department" },
+                  {
+                    name: "departmentId",
+                    label: "Department",
+                    type: "select",
+                    selectFromDepartments: true,
+                    required: true,
+                  },
                   { name: "totalBeds", label: "Total beds", type: "number", required: true },
                 ]}
               />
@@ -135,8 +134,8 @@ export default function MasterDataPage() {
             label: "Insurance providers",
             children: (
               <MasterCrud
+                resource="insurance-providers"
                 entity="Insurance provider"
-                initialData={INSURANCE_PROVIDERS}
                 columns={[
                   { title: "Code", dataIndex: "code", key: "code" },
                   { title: "Name", dataIndex: "name", key: "name" },

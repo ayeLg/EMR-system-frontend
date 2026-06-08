@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-import { ROUTES } from "@/config/routes";
+import { HomeRedirect } from "@/components/auth/HomeRedirect";
 
 export default function Home() {
-  redirect(ROUTES.patients);
+  return <HomeRedirect />;
 }

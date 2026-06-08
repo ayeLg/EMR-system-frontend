@@ -22,7 +22,7 @@ const ICONS: Record<NotificationType, React.ReactNode> = {
   SYSTEM_ALERT: <InfoCircleOutlined style={{ color: "#8c8c8c" }} />,
 };
 
-export function NotificationBell() {
+export function NotificationBell({ compact = false }: { compact?: boolean }) {
   const [items, setItems] = useState(MOCK_NOTIFICATIONS);
   const unread = useMemo(() => items.filter((n) => !n.isRead).length, [items]);
 
@@ -63,9 +63,16 @@ export function NotificationBell() {
 
   return (
     <Popover content={content} trigger="click" placement="bottomRight">
-      <Badge count={unread} size="small">
-        <Button type="text" icon={<BellOutlined />} aria-label="Notifications" />
-      </Badge>
+      <span className="emr-notification-bell">
+        <Badge count={unread} size="small" offset={compact ? [-4, 4] : undefined}>
+          <Button
+            type="text"
+            className={compact ? "emr-topbar-icon-btn" : undefined}
+            icon={<BellOutlined />}
+            aria-label="Notifications"
+          />
+        </Badge>
+      </span>
     </Popover>
   );
 }

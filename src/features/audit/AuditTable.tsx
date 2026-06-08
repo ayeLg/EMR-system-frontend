@@ -7,16 +7,8 @@ import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { PageToolbar } from "@/components/ui/PageToolbar";
 import { SearchInput } from "@/components/ui/SearchInput";
-
-interface AuditEntry {
-  id: string;
-  time: string;
-  user: string;
-  action: string;
-  module: string;
-  resource: string;
-  ip: string;
-}
+import { useAuditLogs } from "./hooks/useAuditLogs";
+import type { AuditEntry } from "./api/audit-api";
 
 const ACTION_COLOR: Record<string, string> = {
   READ: "blue",
@@ -27,21 +19,13 @@ const ACTION_COLOR: Record<string, string> = {
   OVERRIDE: "volcano",
 };
 
-const MOCK_AUDIT: AuditEntry[] = [
-  { id: "1", time: "2026-05-31 09:21", user: "Dr. Aung Aung", action: "READ", module: "Patient", resource: "MRN-0100043", ip: "10.0.0.5" },
-  { id: "2", time: "2026-05-31 09:22", user: "Dr. Aung Aung", action: "CREATE", module: "Prescription", resource: "RX-0300009", ip: "10.0.0.5" },
-  { id: "3", time: "2026-05-31 09:25", user: "Dr. Aung Aung", action: "OVERRIDE", module: "Allergy", resource: "Penicillin override", ip: "10.0.0.5" },
-  { id: "4", time: "2026-05-31 09:40", user: "Su Su (Reception)", action: "CREATE", module: "Appointment", resource: "APT-0600016", ip: "10.0.0.9" },
-  { id: "5", time: "2026-05-31 10:05", user: "Ko Zaw (Pharmacy)", action: "UPDATE", module: "Inventory", resource: "Warfarin batch B-2350", ip: "10.0.0.12" },
-  { id: "6", time: "2026-05-31 08:00", user: "system", action: "LOGIN", module: "Auth", resource: "Dr. Hla Hla login", ip: "10.0.0.7" },
-];
-
 export function AuditTable() {
+  const { data: auditLogs = [], isLoading } = useAuditLogs();
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return MOCK_AUDIT.filter(
+    return auditLogs.filter(
       (e) =>
         !q ||
         e.user.toLowerCase().includes(q) ||
@@ -49,10 +33,25 @@ export function AuditTable() {
         e.resource.toLowerCase().includes(q) ||
         e.action.toLowerCase().includes(q),
     );
-  }, [search]);
+  }, [auditLogs, search]);
 
   const columns: TableProps<AuditEntry>["columns"] = [
-    { title: "Timestamp", dataIndex: "time", key: "time" },
+    {
+      title: "Timestamp",
+      dataIndex: "time",
+      key: "time",
+      render: (t: string) => {
+        if (!t) return "";
+        const d = new Date(t);
+        return isNaN(d.getTime())
+          ? t
+          : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+              d.getDate(),
+            ).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(
+              d.getMinutes(),
+            ).padStart(2, "0")}`;
+      },
+    },
     { title: "User", dataIndex: "user", key: "user" },
     {
       title: "Action",
@@ -79,7 +78,12 @@ export function AuditTable() {
         />
       }
     >
-      <DataTable<AuditEntry> rowKey="id" columns={columns} dataSource={filtered} />
+      <DataTable<AuditEntry>
+        rowKey="id"
+        columns={columns}
+        dataSource={filtered}
+        loading={isLoading}
+      />
     </ContentCard>
   );
 }

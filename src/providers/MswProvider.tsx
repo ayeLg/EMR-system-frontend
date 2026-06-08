@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const mockingEnabled = process.env.NODE_ENV === "development";
+import { ENV } from "@/config/env";
+import { logger } from "@/lib/observability/logger";
 
 // Module-level singleton: worker.start() must run exactly once, even across
 // React Strict Mode's double-invoked effects and component remounts.
@@ -11,7 +11,10 @@ let startPromise: Promise<unknown> | null = null;
 function startWorkerOnce(): Promise<unknown> {
   if (!startPromise) {
     startPromise = import("@/mocks/browser").then(({ worker }) =>
-      worker.start({ onUnhandledRequest: "bypass" }),
+      worker.start({ onUnhandledRequest: "bypass" }).then((result) => {
+        logger.info("MSW mock worker started");
+        return result;
+      }),
     );
   }
   return startPromise;
@@ -22,10 +25,10 @@ function startWorkerOnce(): Promise<unknown> {
  * In production it is a no-op (children render immediately).
  */
 export function MswProvider({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(!mockingEnabled);
+  const [ready, setReady] = useState(!ENV.mswEnabled);
 
   useEffect(() => {
-    if (!mockingEnabled) return;
+    if (!ENV.mswEnabled) return;
     let active = true;
     void startWorkerOnce().then(() => {
       if (active) setReady(true);

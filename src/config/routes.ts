@@ -1,5 +1,6 @@
 /** Typed route path constants — avoid hardcoded strings across the app. */
 export const ROUTES = {
+  login: "/login",
   patients: "/patients",
   appointments: "/appointments",
   nurseQueue: "/nurse-queue",
@@ -12,6 +13,7 @@ export const ROUTES = {
   printPreviews: "/print-previews",
   reports: "/reports",
   masterData: "/master-data",
+  rbac: "/rbac",
   doctorSchedules: "/doctor-schedules",
   users: "/users",
   auditLogs: "/audit-logs",

@@ -8,7 +8,7 @@ import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { PageToolbar } from "@/components/ui/PageToolbar";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { useStaff } from "../hooks/useStaff";
+import { useStaff, useDeleteUser } from "../hooks/useStaff";
 import type { StaffStatus, StaffUser } from "../types";
 import { AddUserModal } from "./AddUserModal";
 
@@ -26,24 +26,23 @@ interface UsersTableProps {
 
 export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
   const { data, isLoading } = useStaff();
+  const deleteUserMutation = useDeleteUser();
   const { message } = App.useApp();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<StaffUser | null>(null);
-  const [removed, setRemoved] = useState<string[]>([]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (data ?? [])
-      .filter((u) => !removed.includes(u.id))
       .filter(
         (u) =>
           !q ||
           u.fullName.toLowerCase().includes(q) ||
           u.email.toLowerCase().includes(q) ||
           u.employeeId.toLowerCase().includes(q) ||
-          u.department.toLowerCase().includes(q),
+          u.department?.toLowerCase().includes(q),
       );
-  }, [data, search, removed]);
+  }, [data, search]);
 
   const columns: TableProps<StaffUser>["columns"] = [
     { title: "Name", dataIndex: "fullName", key: "fullName" },
@@ -65,12 +64,16 @@ export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
           <Button size="small" icon={<EditOutlined />} onClick={() => setEditing(r)} />
           <Popconfirm
             title="Deactivate this user?"
-            onConfirm={() => {
-              setRemoved((p) => [...p, r.id]);
-              message.success("User deactivated (mock).");
+            onConfirm={async () => {
+              try {
+                await deleteUserMutation.mutateAsync(r.id);
+                message.success("User deactivated successfully.");
+              } catch (err: any) {
+                message.error(err.message || "Failed to deactivate user");
+              }
             }}
             okText="Deactivate"
-            okButtonProps={{ danger: true }}
+            okButtonProps={{ danger: true, loading: deleteUserMutation.isPending }}
           >
             <Button size="small" danger icon={<DeleteOutlined />} />
           </Popconfirm>

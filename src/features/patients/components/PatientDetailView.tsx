@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusTag } from "@/components/ui/StatusTag";
 import { DataTable } from "@/components/common/DataTable";
 import { EmptyState } from "@/components/common/EmptyState";
-import { PATIENT_STATUS } from "@/config/enums";
+import { getPatientStatusMeta } from "@/config/enums";
 import { BLOOD_TYPE_OPTIONS, GENDER_OPTIONS } from "../options";
 import { usePatient } from "../hooks/usePatient";
 import type { EncounterSummary, PatientAllergy } from "../types";
@@ -29,6 +29,8 @@ export function PatientDetailView({ id }: { id: string }) {
 
   if (isLoading) return <Skeleton active paragraph={{ rows: 8 }} />;
   if (!data) return <EmptyState description="Patient not found" />;
+
+  const statusMeta = getPatientStatusMeta(data.status);
 
   const allergyColumns: TableProps<PatientAllergy>["columns"] = [
     { title: "Allergen", dataIndex: "allergenName", key: "allergenName" },
@@ -56,10 +58,9 @@ export function PatientDetailView({ id }: { id: string }) {
         subtitle={data.mrn}
         actions={
           <Space>
-            <StatusTag
-              labelKey={PATIENT_STATUS[data.status].labelKey}
-              color={PATIENT_STATUS[data.status].color}
-            />
+            {statusMeta ? (
+              <StatusTag labelKey={statusMeta.labelKey} color={statusMeta.color} />
+            ) : null}
             <Button icon={<EditOutlined />} href={`${ROUTES.patients}/${id}/edit`}>
               Edit
             </Button>
@@ -75,11 +76,14 @@ export function PatientDetailView({ id }: { id: string }) {
               <Descriptions bordered column={{ xs: 1, sm: 2 }} size="small">
                 <Descriptions.Item label="MRN">{data.mrn}</Descriptions.Item>
                 <Descriptions.Item label="Date of birth">{data.dateOfBirth}</Descriptions.Item>
-                <Descriptions.Item label="Gender">{label(GENDER_OPTIONS, data.gender)}</Descriptions.Item>
+                <Descriptions.Item label="Gender">
+                  {data.gender ? label(GENDER_OPTIONS, data.gender) : "—"}
+                </Descriptions.Item>
                 <Descriptions.Item label="Blood type">{label(BLOOD_TYPE_OPTIONS, data.bloodType)}</Descriptions.Item>
                 <Descriptions.Item label="NRC">{data.nrcNumber ?? "—"}</Descriptions.Item>
                 <Descriptions.Item label="Phone">{data.primaryPhone}</Descriptions.Item>
                 <Descriptions.Item label="Email">{data.email ?? "—"}</Descriptions.Item>
+                <Descriptions.Item label="City">{data.city ?? "—"}</Descriptions.Item>
                 <Descriptions.Item label="Township">{data.township ?? "—"}</Descriptions.Item>
                 <Descriptions.Item label="Address">{data.address ?? "—"}</Descriptions.Item>
               </Descriptions>

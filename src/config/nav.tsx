@@ -16,6 +16,7 @@ import {
   AuditOutlined,
   BellOutlined,
   SettingOutlined,
+  SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import { ROUTES } from "./routes";
@@ -51,6 +52,7 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "masterData", labelKey: "masterData", icon: <DatabaseOutlined />, path: ROUTES.masterData, group: "admin", permission: "settings:manage" },
   { key: "doctorSchedules", labelKey: "doctorSchedules", icon: <ScheduleOutlined />, path: ROUTES.doctorSchedules, group: "admin", permission: "settings:manage" },
   { key: "users", labelKey: "users", icon: <UserOutlined />, path: ROUTES.users, group: "admin", permission: "user:manage" },
+  { key: "rbac", labelKey: "rbac", icon: <SafetyCertificateOutlined />, path: ROUTES.rbac, group: "admin", permission: "settings:update" },
   { key: "auditLogs", labelKey: "auditLogs", icon: <AuditOutlined />, path: ROUTES.auditLogs, group: "admin", permission: "settings:manage" },
   { key: "notifications", labelKey: "notifications", icon: <BellOutlined />, path: ROUTES.notifications, group: "admin", permission: "patient:read" },
   { key: "settings", labelKey: "settings", icon: <SettingOutlined />, path: ROUTES.settings, group: "admin", permission: "settings:manage" },

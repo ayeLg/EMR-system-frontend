@@ -25,13 +25,14 @@ export function PatientEditView({ id }: { id: string }) {
     primaryPhone: data.primaryPhone,
     email: data.email ?? "",
     address: data.address ?? "",
+    city: data.city ?? "",
     township: data.township ?? "",
   };
 
   return (
     <>
       <PageHeader title="Edit patient" subtitle={`${data.fullName} · ${data.mrn}`} />
-      <RegistrationForm mode="edit" defaultValues={defaults} />
+      <RegistrationForm mode="edit" patientId={id} defaultValues={defaults} />
     </>
   );
 }

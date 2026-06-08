@@ -37,13 +37,13 @@ export const registrationSchema = z.object({
   primaryPhone: z
     .string()
     .regex(/^(09\d{7,9}|\+959\d{7,9})$/, "Invalid Myanmar phone"),
-  email: z.string().optional(),
+  email: z
+    .string()
+    .email("Invalid email")
+    .optional()
+    .or(z.literal("")),
   address: z.string().optional(),
+  city: z.string().optional(),
   township: z.string().optional(),
-  emergencyName: z.string().optional(),
-  emergencyPhone: z.string().optional(),
-  emergencyRelationship: z.string().optional(),
-  insuranceProvider: z.string().optional(),
-  insurancePolicy: z.string().optional(),
 });
 export type RegistrationValues = z.infer<typeof registrationSchema>;

@@ -1,15 +1,17 @@
 "use client";
 
-import { Avatar, Button, Dropdown, Flex, Space, Typography } from "antd";
+import { Avatar, Button, Dropdown, Flex, Typography } from "antd";
 import {
   BulbOutlined,
   GlobalOutlined,
   LogoutOutlined,
-  MenuOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { useTranslations } from "next-intl";
 import { useUIStore } from "@/store/ui-store";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 import { usePermissions } from "@/lib/rbac/usePermissions";
 import { LOCALE_LABELS } from "@/i18n/config";
 import { NotificationBell } from "@/features/notifications/NotificationBell";
@@ -18,57 +20,72 @@ import { GlobalSearchTrigger } from "@/components/search/GlobalSearchTrigger";
 const { Text } = Typography;
 
 export function Topbar({
-  showHamburger,
-  onOpenDrawer,
-  showBrand,
+  showSidebarToggle = false,
+  compact = false,
 }: {
-  showHamburger: boolean;
-  onOpenDrawer: () => void;
-  showBrand?: boolean;
+  showSidebarToggle?: boolean;
+  compact?: boolean;
 }) {
   const t = useTranslations();
   const locale = useUIStore((s) => s.locale);
+  const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const toggleLocale = useUIStore((s) => s.toggleLocale);
   const toggleTheme = useUIStore((s) => s.toggleTheme);
   const { user } = usePermissions();
+  const logout = useLogout();
 
   return (
-    <Flex align="center" gap={16} style={{ width: "100%" }}>
-      {showHamburger ? (
-        <Button type="text" icon={<MenuOutlined />} onClick={onOpenDrawer} />
-      ) : null}
-
-      {showBrand ? (
-        <Text strong style={{ fontSize: 15, whiteSpace: "nowrap" }}>
-          {t("common.appName")}
-        </Text>
-      ) : null}
-
-      <div className="emr-global-search">
-        <GlobalSearchTrigger />
-      </div>
-
-      <Space size={4} className="emr-topbar-actions" style={{ marginInlineStart: "auto" }}>
+    <Flex
+      align="center"
+      gap={compact ? 0 : 16}
+      className={compact ? "emr-topbar emr-topbar--compact" : "emr-topbar"}
+      style={{ flexShrink: 0 }}
+    >
+      {showSidebarToggle ? (
         <Button
           type="text"
+          className="emr-topbar-icon-btn emr-sidebar-toggle"
+          icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          onClick={toggleSidebar}
+          aria-label={t("topbar.toggleSidebar")}
+        />
+      ) : null}
+
+      {!compact ? (
+        <div className="emr-global-search">
+          <GlobalSearchTrigger />
+        </div>
+      ) : null}
+
+      <div className="emr-topbar-actions">
+        {compact ? <GlobalSearchTrigger compact /> : null}
+
+        <Button
+          type="text"
+          className={compact ? "emr-topbar-icon-btn" : undefined}
           icon={<GlobalOutlined />}
           onClick={toggleLocale}
           aria-label="Toggle language"
         >
-          {LOCALE_LABELS[locale]}
+          {compact ? null : LOCALE_LABELS[locale]}
         </Button>
 
         <Button
           type="text"
+          className="emr-topbar-icon-btn"
           icon={<BulbOutlined />}
           onClick={toggleTheme}
           aria-label="Toggle theme"
         />
 
-        <NotificationBell />
+        <NotificationBell compact={compact} />
 
         <Dropdown
           menu={{
+            onClick: ({ key }) => {
+              if (key === "logout") logout();
+            },
             items: [
               {
                 key: "user",
@@ -102,12 +119,12 @@ export function Topbar({
               background: "linear-gradient(135deg, #1677ff 0%, #4096ff 100%)",
               cursor: "pointer",
             }}
-            size="default"
+            size={compact ? "small" : "default"}
           >
             {user.name.charAt(0)}
           </Avatar>
         </Dropdown>
-      </Space>
+      </div>
     </Flex>
   );
 }

@@ -34,7 +34,7 @@ export function FilterSelect({
         ) : undefined
       }
       style={{ minWidth: 168, ...style }}
-      popupClassName="emr-filter-select-dropdown"
+      classNames={{ popup: { root: "emr-filter-select-dropdown" } }}
       {...props}
     />
   );
