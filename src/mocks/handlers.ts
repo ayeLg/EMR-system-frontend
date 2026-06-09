@@ -21,6 +21,12 @@ export const handlers = [
     return detail ? ok(detail) : notFound();
   }),
   
+  // http.get("/api/appointments", () => ok(MOCK_APPOINTMENTS)),
+  // http.get("/api/appointments/:id", ({ params }) => {
+  //   const appt = MOCK_APPOINTMENTS.find((a) => a.id === String(params.id));
+  //   return appt ? ok(appt) : notFound();
+  // }),
+
   http.get("/api/encounters", () => ok(MOCK_ENCOUNTERS)),
   http.get("/api/encounters/:id", ({ params }) => {
     const detail = getMockEncounterDetail(String(params.id));
