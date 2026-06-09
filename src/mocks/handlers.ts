@@ -1,7 +1,6 @@
 import { http } from "msw";
 // Patients are fully bound to the live backend API — no mock handlers here, so
 // /api/patients* requests pass through (onUnhandledRequest: "bypass") to NestJS.
-import { MOCK_APPOINTMENTS } from "@/lib/mock/appointments";
 import { MOCK_ENCOUNTERS, getMockEncounterDetail } from "@/lib/mock/encounters";
 import { MOCK_PRESCRIPTIONS, MOCK_INVENTORY } from "@/lib/mock/pharmacy";
 import { MOCK_LAB_ORDERS, getMockLabOrderDetail } from "@/lib/mock/laboratory";
@@ -21,11 +20,7 @@ export const handlers = [
     const detail = getMockInvoiceDetail(String(params.id));
     return detail ? ok(detail) : notFound();
   }),
-  http.get("/api/appointments", () => ok(MOCK_APPOINTMENTS)),
-  http.get("/api/appointments/:id", ({ params }) => {
-    const appt = MOCK_APPOINTMENTS.find((a) => a.id === String(params.id));
-    return appt ? ok(appt) : notFound();
-  }),
+  
   http.get("/api/encounters", () => ok(MOCK_ENCOUNTERS)),
   http.get("/api/encounters/:id", ({ params }) => {
     const detail = getMockEncounterDetail(String(params.id));
