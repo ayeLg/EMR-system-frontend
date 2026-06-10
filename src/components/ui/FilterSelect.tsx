@@ -3,6 +3,11 @@
 import { Select } from "antd";
 import type { SelectProps } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
+import {
+  toolbarSelectContentStyle,
+  toolbarSelectPlaceholderStyle,
+  toolbarSelectRootStyle,
+} from "@/theme/controlStyles";
 
 export interface FilterSelectProps extends SelectProps {
   /** Small caption above the control (toolbar filters). */
@@ -36,6 +41,12 @@ export function FilterSelect({
       style={{ minWidth: 168, ...style }}
       classNames={{ popup: { root: "emr-filter-select-dropdown" } }}
       {...props}
+      styles={{
+        root: toolbarSelectRootStyle,
+        content: toolbarSelectContentStyle,
+        placeholder: toolbarSelectPlaceholderStyle,
+        prefix: { display: "flex", alignItems: "center" },
+      }}
     />
   );
 

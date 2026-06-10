@@ -22,11 +22,11 @@ export function PageToolbar({ search, filters, actions }: PageToolbarProps) {
       className="emr-page-toolbar"
     >
       <Flex gap={12} wrap="wrap" align="flex-end" style={{ flex: 1, minWidth: 0 }}>
-        {search}
+        {search ? <div className="emr-toolbar-search-wrap">{search}</div> : null}
         {filters}
       </Flex>
       {actions ? (
-        <Flex gap={8} wrap="wrap" align="center">
+        <Flex gap={8} wrap="wrap" align="center" className="emr-toolbar-actions-wrap">
           {actions}
         </Flex>
       ) : null}

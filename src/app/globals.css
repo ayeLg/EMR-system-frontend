@@ -22,6 +22,11 @@ a {
   text-decoration: none;
 }
 
+body {
+  font-family: var(--font-inter), var(--font-noto-myanmar), -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 /* Admin dashboard surfaces */
 :root {
   --emr-text-muted: #94a3b8;
@@ -281,10 +286,28 @@ html[data-theme="dark"] .emr-sidebar-nav::-webkit-scrollbar-thumb {
 }
 
 .emr-search-input.ant-input-affix-wrapper {
-  min-height: 40px;
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding-block: 0 !important;
   padding-inline: 12px;
   border-radius: 10px;
   border: 1px solid transparent;
+}
+
+.emr-search-input.ant-input-affix-wrapper::before {
+  display: none !important;
+}
+
+.emr-search-input.ant-input-affix-wrapper > input.ant-input {
+  height: 40px !important;
+  line-height: 40px !important;
+}
+
+.emr-search-input.ant-input-affix-wrapper .ant-input-prefix {
+  display: inline-flex;
+  align-items: center;
 }
 
 .emr-search-input.ant-input-affix-wrapper:hover {
@@ -351,10 +374,21 @@ html[data-theme="dark"] .emr-sidebar-nav::-webkit-scrollbar-thumb {
   border-radius: 8px;
 }
 
-.emr-create-btn {
+.emr-create-btn.ant-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding-block: 0 !important;
   border-radius: 10px;
   font-weight: 500;
+  line-height: 40px !important;
   box-shadow: 0 1px 2px rgba(22, 119, 255, 0.2);
+}
+
+.emr-create-btn.ant-btn .ant-btn-icon {
+  line-height: 0;
 }
 
 .emr-mobile-header {
@@ -524,29 +558,42 @@ html[data-theme="dark"] .emr-sidebar-nav::-webkit-scrollbar-thumb {
   line-height: 1;
 }
 
+.emr-page-toolbar:has(.emr-filter-field) .emr-toolbar-search-wrap,
+.emr-page-toolbar:has(.emr-filter-field) .emr-toolbar-actions-wrap {
+  padding-top: 17px;
+}
+
 .emr-filter-select.ant-select {
   min-width: 168px;
-}
-
-.emr-filter-select .ant-select-selector {
-  border-radius: 10px !important;
+  height: 40px !important;
   min-height: 40px !important;
   align-items: center !important;
-  padding-inline: 12px !important;
-  border: 1px solid transparent !important;
-  box-shadow: none !important;
+  border-radius: 10px !important;
 }
 
-.emr-filter-select:not(.ant-select-disabled):hover .ant-select-selector {
-  border-color: var(--ant-color-primary-border, #91caff) !important;
+.emr-filter-select.ant-select .ant-select-content,
+.emr-filter-select.ant-select .ant-select-placeholder {
+  align-self: center;
+  line-height: 40px !important;
 }
 
-.emr-filter-select.ant-select-focused .ant-select-selector {
-  border-color: var(--ant-color-primary, #1677ff) !important;
+.emr-filter-select.ant-select .ant-select-prefix {
+  display: inline-flex;
+  align-items: center;
+}
+
+.emr-filter-select.ant-select:not(.ant-select-disabled):hover {
+  --ant-select-border-color: var(--ant-color-primary-border, #91caff);
+}
+
+.emr-filter-select.ant-select.ant-select-focused {
+  --ant-select-border-color: var(--ant-color-primary, #1677ff);
   box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12) !important;
 }
 
 .emr-filter-select-dropdown .ant-select-item {
+  display: flex;
+  align-items: center;
   border-radius: 8px;
   margin-inline: 4px;
 }
@@ -556,10 +603,17 @@ html[data-theme="dark"] .emr-sidebar-nav::-webkit-scrollbar-thumb {
 }
 
 /* —— Form selects —— */
-.emr-form-select.ant-select .ant-select-selector {
-  border-radius: 10px !important;
+.emr-form-select.ant-select {
+  height: 40px !important;
   min-height: 40px !important;
   align-items: center !important;
+  border-radius: 10px !important;
+}
+
+.emr-form-select.ant-select .ant-select-content,
+.emr-form-select.ant-select .ant-select-placeholder {
+  align-self: center;
+  line-height: 40px !important;
 }
 
 /* —— Dark mode: custom surfaces (Ant tokens + local overrides) —— */
@@ -602,8 +656,8 @@ html[data-theme="dark"] .emr-command-palette__item[data-active] {
   background: var(--ant-color-primary-bg, #1f2d42);
 }
 
-html[data-theme="dark"] .emr-filter-select .ant-select-selector {
-  border-color: var(--ant-color-border-secondary, #2a3341) !important;
+html[data-theme="dark"] .emr-filter-select.ant-select {
+  --ant-select-border-color: var(--ant-color-border-secondary, #2a3341);
 }
 
 html[data-theme="dark"] .emr-search-input.ant-input-affix-wrapper {

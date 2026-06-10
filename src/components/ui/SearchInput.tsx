@@ -3,6 +3,10 @@
 import { Input } from "antd";
 import type { InputProps } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import {
+  toolbarInputInnerStyle,
+  toolbarInputRootStyle,
+} from "@/theme/controlStyles";
 
 export interface SearchInputProps extends Omit<InputProps, "prefix"> {
   /** When true, uses a wider field suited for page toolbars. */
@@ -31,6 +35,11 @@ export function SearchInput({
         ...style,
       }}
       {...props}
+      styles={{
+        root: toolbarInputRootStyle,
+        input: toolbarInputInnerStyle,
+        prefix: { display: "flex", alignItems: "center" },
+      }}
     />
   );
 }

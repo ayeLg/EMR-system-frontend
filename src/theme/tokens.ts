@@ -7,7 +7,7 @@ const sharedTokens: ThemeConfig["token"] = {
   borderRadius: 8,
   borderRadiusLG: 12,
   fontFamily:
-    "'Inter', 'Noto Sans Myanmar', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    "var(--font-inter), var(--font-noto-myanmar), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   fontSize: 14,
   controlHeight: 40,
   controlHeightLG: 44,

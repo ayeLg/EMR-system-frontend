@@ -15,7 +15,7 @@ export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
   return (
     <Flex
       justify="space-between"
-      align="flex-start"
+      align="center"
       className="emr-page-header"
       gap={16}
       wrap="wrap"
@@ -32,7 +32,7 @@ export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
         ) : null}
       </div>
       {actions ? (
-        <Flex gap={8} align="center" style={{ padding: "4px 0" }}>
+        <Flex gap={8} align="center">
           {actions}
         </Flex>
       ) : null}

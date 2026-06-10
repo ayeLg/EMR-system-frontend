@@ -1,6 +1,7 @@
 "use client";
 
 import { App } from "antd";
+import { LocaleHtmlLang } from "@/components/i18n/LocaleHtmlLang";
 import { MswProvider } from "./MswProvider";
 import { QueryProvider } from "./QueryProvider";
 import { IntlProvider } from "./IntlProvider";
@@ -13,6 +14,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryProvider>
         <AuthProvider>
           <IntlProvider>
+            <LocaleHtmlLang />
             <ThemeProvider>
               <App>{children}</App>
             </ThemeProvider>
