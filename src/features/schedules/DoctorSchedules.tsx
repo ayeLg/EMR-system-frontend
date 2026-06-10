@@ -1,99 +1,165 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { TableProps } from "antd";
-import { App, Form, Input, InputNumber, Modal, Select, TimePicker } from "antd";
+import { App, Button, Popconfirm, Select, Space, Switch } from "antd";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { PageToolbar } from "@/components/ui/PageToolbar";
 import { CreateButton } from "@/components/ui/CreateButton";
-
-interface ScheduleRow {
-  id: string;
-  doctor: string;
-  day: string;
-  start: string;
-  end: string;
-  slotMinutes: number;
-}
-
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => ({ label: d, value: d }));
-const DOCTORS = ["Dr. Aung Aung", "Dr. Hla Hla", "Dr. Kyaw Min"].map((d) => ({ label: d, value: d }));
-
-const MOCK_SCHEDULES: ScheduleRow[] = [
-  { id: "1", doctor: "Dr. Aung Aung", day: "Mon", start: "09:00", end: "12:00", slotMinutes: 15 },
-  { id: "2", doctor: "Dr. Aung Aung", day: "Wed", start: "13:00", end: "17:00", slotMinutes: 15 },
-  { id: "3", doctor: "Dr. Hla Hla", day: "Tue", start: "08:00", end: "12:00", slotMinutes: 20 },
-];
+import { useStaff } from "@/features/users/hooks/useStaff";
+import { ScheduleFormModal } from "./components/ScheduleFormModal";
+import { useDoctorSchedules } from "./hooks/useDoctorSchedules";
+import { DAY_OPTIONS, type DoctorSchedule } from "./types";
 
 export function DoctorSchedules() {
   const { message } = App.useApp();
-  const [rows, setRows] = useState<ScheduleRow[]>(MOCK_SCHEDULES);
-  const [open, setOpen] = useState(false);
-  const [form] = Form.useForm();
+  const { data: staff = [], isLoading: loadingStaff } = useStaff();
+  const [doctorFilter, setDoctorFilter] = useState<string | undefined>();
+  const [dayFilter, setDayFilter] = useState<number | undefined>();
+  const { rows, isLoading, create, update, remove, toggleActive } = useDoctorSchedules({
+    doctorId: doctorFilter,
+    dayOfWeek: dayFilter,
+  });
 
-  const columns: TableProps<ScheduleRow>["columns"] = [
-    { title: "Doctor", dataIndex: "doctor", key: "doctor" },
-    { title: "Day", dataIndex: "day", key: "day" },
-    { title: "Start", dataIndex: "start", key: "start" },
-    { title: "End", dataIndex: "end", key: "end" },
-    { title: "Slot (min)", dataIndex: "slotMinutes", key: "slotMinutes" },
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<DoctorSchedule | null>(null);
+
+  const doctors = useMemo(
+    () =>
+      staff
+        .filter((u) => u.role === "DOCTOR" && u.status === "ACTIVE")
+        .map((u) => ({ label: u.fullName, value: u.id })),
+    [staff],
+  );
+
+  const columns: TableProps<DoctorSchedule>["columns"] = [
+    { title: "Doctor", dataIndex: "doctorName", key: "doctorName" },
+    { title: "Day", dataIndex: "dayLabel", key: "dayLabel", width: 88 },
+    { title: "Start", dataIndex: "startTime", key: "startTime", width: 88 },
+    { title: "End", dataIndex: "endTime", key: "endTime", width: 88 },
+    { title: "Slot (min)", dataIndex: "slotMinutes", key: "slotMinutes", width: 100 },
+    {
+      title: "Active",
+      key: "isActive",
+      width: 88,
+      render: (_, row) => (
+        <Switch
+          checked={row.isActive}
+          loading={toggleActive.isPending && toggleActive.variables?.id === row.id}
+          onChange={(checked) =>
+            void toggleActive.mutateAsync({ id: row.id, isActive: checked }).then(() =>
+              message.success(`Schedule ${checked ? "activated" : "deactivated"}.`),
+            )
+          }
+        />
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 120,
+      render: (_, row) => (
+        <Space>
+          <Button
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setEditing(row);
+              setOpen(true);
+            }}
+          />
+          <Popconfirm
+            title="Delete this schedule?"
+            description="Existing appointments are not removed."
+            onConfirm={() =>
+              void remove.mutateAsync(row.id).then(() => message.success("Schedule deleted."))
+            }
+            okText="Delete"
+            okButtonProps={{ danger: true }}
+          >
+            <Button size="small" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
+
+  const saving = create.isPending || update.isPending;
 
   return (
     <>
       <ContentCard
         toolbar={
           <PageToolbar
-            actions={<CreateButton onClick={() => setOpen(true)}>Add schedule</CreateButton>}
+            filters={
+              <Space wrap>
+                <Select
+                  allowClear
+                  placeholder="All doctors"
+                  style={{ minWidth: 200 }}
+                  loading={loadingStaff}
+                  value={doctorFilter}
+                  onChange={setDoctorFilter}
+                  options={doctors}
+                />
+                <Select
+                  allowClear
+                  placeholder="All days"
+                  style={{ minWidth: 140 }}
+                  value={dayFilter}
+                  onChange={setDayFilter}
+                  options={[...DAY_OPTIONS]}
+                />
+              </Space>
+            }
+            actions={
+              <CreateButton
+                onClick={() => {
+                  setEditing(null);
+                  setOpen(true);
+                }}
+              >
+                Add schedule
+              </CreateButton>
+            }
           />
         }
       >
-        <DataTable<ScheduleRow> rowKey="id" columns={columns} dataSource={rows} />
+        <DataTable<DoctorSchedule>
+          rowKey="id"
+          columns={columns}
+          dataSource={rows}
+          loading={isLoading}
+        />
       </ContentCard>
 
-      <Modal
+      <ScheduleFormModal
         open={open}
-        title="Add doctor schedule"
-        okText="Create"
-        onOk={() =>
-          form.validateFields().then((v) => {
-            setRows((p) => [
-              ...p,
-              {
-                id: String(Date.now()),
-                doctor: v.doctor,
-                day: v.day,
-                start: v.time?.[0]?.format("HH:mm") ?? "09:00",
-                end: v.time?.[1]?.format("HH:mm") ?? "17:00",
-                slotMinutes: v.slotMinutes ?? 15,
-              },
-            ]);
-            message.success("Schedule added (mock).");
-            form.resetFields();
-            setOpen(false);
-          })
-        }
-        onCancel={() => setOpen(false)}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="doctor" label="Doctor" rules={[{ required: true }]}>
-            <Select options={DOCTORS} />
-          </Form.Item>
-          <Form.Item name="day" label="Day" rules={[{ required: true }]}>
-            <Select options={DAYS} />
-          </Form.Item>
-          <Form.Item name="time" label="Hours" rules={[{ required: true }]}>
-            <TimePicker.RangePicker format="HH:mm" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item name="slotMinutes" label="Slot minutes" initialValue={15}>
-            <InputNumber style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item name="note" label="Note" hidden>
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
+        schedule={editing}
+        doctors={doctors}
+        loading={saving}
+        onClose={() => {
+          setOpen(false);
+          setEditing(null);
+        }}
+        onSubmit={async (payload) => {
+          try {
+            if (editing) {
+              await update.mutateAsync({ id: editing.id, payload });
+              message.success("Schedule updated.");
+            } else {
+              await create.mutateAsync(payload);
+              message.success("Schedule created.");
+            }
+          } catch (err) {
+            const apiErr = err as { message?: string };
+            message.error(apiErr.message ?? "Save failed");
+            throw err;
+          }
+        }}
+      />
     </>
   );
 }
