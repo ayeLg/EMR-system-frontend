@@ -5,43 +5,63 @@ import type { TableProps } from "antd";
 import { App, Button, Col, Form, InputNumber, Modal, Row, Statistic } from "antd";
 import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
-import { useAppointments } from "@/features/appointments/hooks/useAppointments";
+import {
+  useNurseQueueAppointments,
+  useRecordAppointmentVitals,
+} from "@/features/appointments/hooks/useAppointments";
+import type { RecordVitalsPayload } from "@/features/appointments/api/appointments-api";
 import type { Appointment } from "@/features/appointments/types";
 
+type VitalsFormValues = Omit<RecordVitalsPayload, "bmi">;
+
 export function NurseQueue() {
-  const { data, isLoading } = useAppointments();
+  const { data, isLoading } = useNurseQueueAppointments();
+  const recordVitals = useRecordAppointmentVitals();
   const { message } = App.useApp();
   const [selected, setSelected] = useState<Appointment | null>(null);
   const [done, setDone] = useState<string[]>([]);
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<VitalsFormValues>();
   const [bmi, setBmi] = useState<number | null>(null);
+  const requiredRule = { required: true, message: "Required" };
 
-  // ARRIVED queue, earliest scheduled first.
   const queue = useMemo(
     () =>
       (data ?? [])
-        .filter((a) => a.status === "ARRIVED" && !done.includes(a.id))
+        .filter((appointment) => !done.includes(appointment.id))
         .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)),
     [data, done],
   );
 
+  const resetModal = () => {
+    setSelected(null);
+    form.resetFields();
+    setBmi(null);
+  };
+
   const recalcBmi = () => {
-    const w = form.getFieldValue("weightKg");
-    const h = form.getFieldValue("heightCm");
-    if (w && h) setBmi(Number((w / (h / 100) ** 2).toFixed(1)));
-    else setBmi(null);
+    const weightKg = form.getFieldValue("weightKg");
+    const heightCm = form.getFieldValue("heightCm");
+    if (weightKg && heightCm) {
+      setBmi(Number((weightKg / (heightCm / 100) ** 2).toFixed(1)));
+    } else {
+      setBmi(null);
+    }
   };
 
   const columns: TableProps<Appointment>["columns"] = [
     { title: "No.", dataIndex: "appointmentNo", key: "appointmentNo" },
-    { title: "Patient", key: "patient", render: (_, r) => `${r.patientName} · ${r.mrn}` },
+    {
+      title: "Patient",
+      key: "patient",
+      render: (_, record) => `${record.patientName} - ${record.mrn}`,
+    },
     { title: "Doctor", dataIndex: "doctorName", key: "doctor" },
     { title: "Scheduled", dataIndex: "scheduledAt", key: "scheduledAt" },
     {
       title: "Action",
       key: "action",
-      render: (_, r) => (
-        <Button type="primary" size="small" onClick={() => setSelected(r)}>
+      render: (_, record) => (
+        <Button type="primary" size="small" onClick={() => setSelected(record)}>
           Record vitals
         </Button>
       ),
@@ -62,38 +82,88 @@ export function NurseQueue() {
 
       <Modal
         open={!!selected}
-        title={selected ? `Vitals — ${selected.patientName}` : "Vitals"}
+        title={selected ? `Vitals - ${selected.patientName}` : "Vitals"}
         okText="Save & mark ready"
-        onCancel={() => {
-          setSelected(null);
-          form.resetFields();
-          setBmi(null);
-        }}
-        onOk={() => {
-          if (!selected) return;
-          setDone((p) => [...p, selected.id]);
-          message.success(
-            `Vitals saved · ${selected.appointmentNo} → IN_PROGRESS · doctor notified (patient ready)`,
-          );
-          setSelected(null);
-          form.resetFields();
-          setBmi(null);
-        }}
+        confirmLoading={recordVitals.isPending}
+        onCancel={resetModal}
+        onOk={() => form.submit()}
       >
-        <Form form={form} layout="vertical" onValuesChange={recalcBmi}>
+        <Form
+          form={form}
+          layout="vertical"
+          onValuesChange={recalcBmi}
+          onFinish={async (values) => {
+            if (!selected) return;
+            const calculatedBmi = Number(
+              (values.weightKg / (values.heightCm / 100) ** 2).toFixed(1),
+            );
+            try {
+              await recordVitals.mutateAsync({
+                id: selected.id,
+                payload: { ...values, bmi: calculatedBmi },
+              });
+              setDone((previous) => [...previous, selected.id]);
+              message.success(
+                `Vitals saved - ${selected.appointmentNo} -> IN_PROGRESS`,
+              );
+              resetModal();
+            } catch {
+              message.error("Unable to record vitals");
+            }
+          }}
+        >
           <Row gutter={12}>
-            <Col xs={12} md={6}><Form.Item name="systolicBp" label="Systolic"><InputNumber style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="diastolicBp" label="Diastolic"><InputNumber style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="heartRate" label="HR"><InputNumber style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="respiratoryRate" label="RR"><InputNumber style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="temperature" label="Temp °C"><InputNumber step={0.1} style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="oxygenSaturation" label="SpO₂ %"><InputNumber style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="weightKg" label="Weight kg"><InputNumber step={0.1} style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="heightCm" label="Height cm"><InputNumber step={0.1} style={{ width: "100%" }} /></Form.Item></Col>
-            <Col xs={12} md={6}><Form.Item name="painScore" label="Pain (0-10)"><InputNumber min={0} max={10} style={{ width: "100%" }} /></Form.Item></Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="systolicBp" label="Systolic" rules={[requiredRule]}>
+                <InputNumber min={0} max={300} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="diastolicBp" label="Diastolic" rules={[requiredRule]}>
+                <InputNumber min={0} max={200} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="heartRate" label="HR" rules={[requiredRule]}>
+                <InputNumber min={0} max={300} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="respiratoryRate" label="RR" rules={[requiredRule]}>
+                <InputNumber min={0} max={100} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="temperature" label="Temp C" rules={[requiredRule]}>
+                <InputNumber min={25} max={45} step={0.1} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="oxygenSaturation" label="SpO2 %" rules={[requiredRule]}>
+                <InputNumber min={0} max={100} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="weightKg" label="Weight kg" rules={[requiredRule]}>
+                <InputNumber min={0.1} max={400} step={0.1} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="heightCm" label="Height cm" rules={[requiredRule]}>
+                <InputNumber min={0.1} max={300} step={0.1} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={12} md={6}>
+              <Form.Item name="painScore" label="Pain (0-10)" rules={[requiredRule]}>
+                <InputNumber min={0} max={10} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
             <Col xs={12} md={6}>
               <Form.Item label="BMI (auto)">
-                <Statistic value={bmi ?? "—"} styles={{ content: { fontSize: 20 } }} />
+                <Statistic
+                  value={bmi ?? "-"}
+                  styles={{ content: { fontSize: 20 } }}
+                />
               </Form.Item>
             </Col>
           </Row>

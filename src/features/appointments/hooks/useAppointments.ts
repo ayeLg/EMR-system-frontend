@@ -6,13 +6,17 @@ import {
   deleteAppointment,
   getAppointment,
   getAppointments,
+  getNurseQueueAppointments,
+  recordAppointmentVitals,
   updateAppointment,
   type CreateAppointmentPayload,
+  type RecordVitalsPayload,
   type UpdateAppointmentPayload,
 } from "../api/appointments-api";
 
 export const appointmentQueryKeys = {
   list: ["appointments"] as const,
+  nurseQueue: ["appointments", "nurse-queue"] as const,
   detail: (id: string) => ["appointment", id] as const,
 };
 
@@ -20,6 +24,13 @@ export function useAppointments() {
   return useQuery({
     queryKey: appointmentQueryKeys.list,
     queryFn: getAppointments,
+  });
+}
+
+export function useNurseQueueAppointments() {
+  return useQuery({
+    queryKey: appointmentQueryKeys.nurseQueue,
+    queryFn: getNurseQueueAppointments,
   });
 }
 
@@ -40,6 +51,9 @@ export function useCreateAppointment() {
       void queryClient.invalidateQueries({
         queryKey: appointmentQueryKeys.list,
       });
+      void queryClient.invalidateQueries({
+        queryKey: appointmentQueryKeys.nurseQueue,
+      });
     },
   });
 }
@@ -59,7 +73,37 @@ export function useUpdateAppointment() {
         queryKey: appointmentQueryKeys.list,
       });
       void queryClient.invalidateQueries({
+        queryKey: appointmentQueryKeys.nurseQueue,
+      });
+      void queryClient.invalidateQueries({
         queryKey: appointmentQueryKeys.detail(id),
+      });
+    },
+  });
+}
+
+export function useRecordAppointmentVitals() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: RecordVitalsPayload;
+    }) => recordAppointmentVitals(id, payload),
+    onSuccess: (appointment) => {
+      void queryClient.invalidateQueries({
+        queryKey: appointmentQueryKeys.list,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: appointmentQueryKeys.nurseQueue,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: appointmentQueryKeys.detail(appointment.id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["encounters"],
       });
     },
   });
@@ -72,6 +116,9 @@ export function useDeleteAppointment() {
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: appointmentQueryKeys.list,
+      });
+      void queryClient.invalidateQueries({
+        queryKey: appointmentQueryKeys.nurseQueue,
       });
     },
   });

@@ -17,8 +17,28 @@ export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload> & {
   cancelledReason?: string;
 };
 
+export interface RecordVitalsPayload {
+  systolicBp: number;
+  diastolicBp: number;
+  heartRate: number;
+  respiratoryRate: number;
+  temperature: number;
+  oxygenSaturation: number;
+  weightKg: number;
+  heightCm: number;
+  bmi: number;
+  painScore: number;
+}
+
 export async function getAppointments(): Promise<Appointment[]> {
   const { data } = await apiClient.get<Appointment[]>("/appointments");
+  return data;
+}
+
+export async function getNurseQueueAppointments(): Promise<Appointment[]> {
+  const { data } = await apiClient.get<Appointment[]>(
+    "/appointments/nurse-queue",
+  );
   return data;
 }
 
@@ -40,6 +60,17 @@ export async function updateAppointment(
 ): Promise<Appointment> {
   const { data } = await apiClient.patch<Appointment>(
     `/appointments/${id}`,
+    payload,
+  );
+  return data;
+}
+
+export async function recordAppointmentVitals(
+  id: string,
+  payload: RecordVitalsPayload,
+): Promise<Appointment> {
+  const { data } = await apiClient.post<Appointment>(
+    `/appointments/${id}/vitals`,
     payload,
   );
   return data;
