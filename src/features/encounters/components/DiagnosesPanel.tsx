@@ -3,16 +3,24 @@
 import { useState } from "react";
 import type { TableProps } from "antd";
 import { App, Button, Flex, Select, Table, Tag } from "antd";
-import { ICD10_OPTIONS, DIAGNOSIS_TYPE_OPTIONS } from "../constants";
+import { DIAGNOSIS_TYPE_OPTIONS, ICD10_OPTIONS } from "../constants";
+import { useAddEncounterDiagnosis } from "../hooks/useEncounters";
 import type { Diagnosis } from "../types";
 
-export function DiagnosesPanel({ initial }: { initial: Diagnosis[] }) {
+export function DiagnosesPanel({
+  encounterId,
+  initial,
+}: {
+  encounterId: string;
+  initial: Diagnosis[];
+}) {
   const { message } = App.useApp();
+  const addDiagnosis = useAddEncounterDiagnosis(encounterId);
   const [rows, setRows] = useState<Diagnosis[]>(initial);
   const [code, setCode] = useState<string>();
   const [type, setType] = useState<Diagnosis["type"]>("PRIMARY");
 
-  const add = () => {
+  const add = async () => {
     const opt = ICD10_OPTIONS.find((o) => o.value === code);
     if (!opt) {
       message.warning("Select an ICD-10 code.");
@@ -22,15 +30,25 @@ export function DiagnosesPanel({ initial }: { initial: Diagnosis[] }) {
       message.warning("Diagnosis already added.");
       return;
     }
-    setRows((prev) => [
-      ...prev,
-      { icd10Code: opt.value, description: opt.label.split(" · ")[1] ?? opt.label, type },
-    ]);
+
+    const diagnosis = {
+      icd10Code: opt.value,
+      description: opt.label.split(" - ")[1] ?? opt.label,
+      type,
+    };
+    await addDiagnosis.mutateAsync(diagnosis);
+    setRows((prev) => [...prev, diagnosis]);
     setCode(undefined);
+    message.success("Diagnosis added.");
   };
 
   const columns: TableProps<Diagnosis>["columns"] = [
-    { title: "ICD-10", dataIndex: "icd10Code", key: "icd10Code", render: (v) => <Tag>{v}</Tag> },
+    {
+      title: "ICD-10",
+      dataIndex: "icd10Code",
+      key: "icd10Code",
+      render: (v) => <Tag>{v}</Tag>,
+    },
     { title: "Description", dataIndex: "description", key: "description" },
     { title: "Type", dataIndex: "type", key: "type" },
   ];
@@ -53,7 +71,7 @@ export function DiagnosesPanel({ initial }: { initial: Diagnosis[] }) {
           value={type}
           onChange={(v) => setType(v as Diagnosis["type"])}
         />
-        <Button type="primary" onClick={add}>
+        <Button type="primary" onClick={add} loading={addDiagnosis.isPending}>
           Add diagnosis
         </Button>
       </Flex>

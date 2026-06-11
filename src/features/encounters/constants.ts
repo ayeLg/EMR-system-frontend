@@ -17,15 +17,14 @@ export const DIAGNOSIS_TYPE_OPTIONS = [
 ];
 
 export const ICD10_OPTIONS = [
-  { label: "I10 · Essential hypertension", value: "I10" },
-  { label: "E11 · Type 2 diabetes mellitus", value: "E11" },
-  { label: "J18.9 · Pneumonia, unspecified", value: "J18.9" },
-  { label: "K29.7 · Gastritis, unspecified", value: "K29.7" },
-  { label: "M54.5 · Low back pain", value: "M54.5" },
-  { label: "R51 · Headache", value: "R51" },
+  { label: "I10 - Essential hypertension", value: "I10" },
+  { label: "E11 - Type 2 diabetes mellitus", value: "E11" },
+  { label: "J18.9 - Pneumonia, unspecified", value: "J18.9" },
+  { label: "K29.7 - Gastritis, unspecified", value: "K29.7" },
+  { label: "M54.5 - Low back pain", value: "M54.5" },
+  { label: "R51 - Headache", value: "R51" },
 ];
 
-/** Drugs that trigger the allergy cross-check demo (patient is allergic to Penicillin). */
 export const PRESCRIBABLE_DRUGS = [
   { label: "Penicillin", value: "Penicillin", allergen: true },
   { label: "Paracetamol", value: "Paracetamol", allergen: false },
