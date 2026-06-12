@@ -27,34 +27,34 @@ export const handlers = [
   //   return appt ? ok(appt) : notFound();
   // }),
 
-  http.get("/api/encounters", () => ok(MOCK_ENCOUNTERS)),
-  http.get("/api/encounters/:id", ({ params }) => {
-    const detail = getMockEncounterDetail(String(params.id));
-    return detail ? ok(detail) : notFound();
-  }),
-  http.post("/api/encounters/:id/vitals", ({ params }) =>
-    ok({ id: `vitals-${String(params.id)}` }),
-  ),
-  http.post("/api/encounters/:id/notes", ({ params }) =>
-    ok({ id: `note-${String(params.id)}` }),
-  ),
-  http.post("/api/encounters/:id/diagnoses", ({ params }) =>
-    ok({ id: `diagnosis-${String(params.id)}` }),
-  ),
-  http.post("/api/encounters/:id/prescriptions", ({ params }) =>
-    ok({ id: `rx-${String(params.id)}` }),
-  ),
-  http.post("/api/encounters/:id/lab-orders", ({ params }) =>
-    ok({ id: `lab-${String(params.id)}` }),
-  ),
-  http.post("/api/encounters/:id/orders", ({ params }) =>
-    ok({ id: `order-${String(params.id)}` }),
-  ),
-  http.patch("/api/encounters/:id/status", async ({ params, request }) => {
-    const body = (await request.json()) as { status?: string };
-    const encounter = MOCK_ENCOUNTERS.find((item) => item.id === String(params.id));
-    return encounter
-      ? ok({ ...encounter, status: body.status ?? encounter.status })
-      : notFound();
-  }),
+  // http.get("/api/encounters", () => ok(MOCK_ENCOUNTERS)),
+  // http.get("/api/encounters/:id", ({ params }) => {
+  //   const detail = getMockEncounterDetail(String(params.id));
+  //   return detail ? ok(detail) : notFound();
+  // }),
+  // http.post("/api/encounters/:id/vitals", ({ params }) =>
+  //   ok({ id: `vitals-${String(params.id)}` }),
+  // ),
+  // http.post("/api/encounters/:id/notes", ({ params }) =>
+  //   ok({ id: `note-${String(params.id)}` }),
+  // ),
+  // http.post("/api/encounters/:id/diagnoses", ({ params }) =>
+  //   ok({ id: `diagnosis-${String(params.id)}` }),
+  // ),
+  // http.post("/api/encounters/:id/prescriptions", ({ params }) =>
+  //   ok({ id: `rx-${String(params.id)}` }),
+  // ),
+  // http.post("/api/encounters/:id/lab-orders", ({ params }) =>
+  //   ok({ id: `lab-${String(params.id)}` }),
+  // ),
+  // http.post("/api/encounters/:id/orders", ({ params }) =>
+  //   ok({ id: `order-${String(params.id)}` }),
+  // ),
+  // http.patch("/api/encounters/:id/status", async ({ params, request }) => {
+  //   const body = (await request.json()) as { status?: string };
+  //   const encounter = MOCK_ENCOUNTERS.find((item) => item.id === String(params.id));
+  //   return encounter
+  //     ? ok({ ...encounter, status: body.status ?? encounter.status })
+  //     : notFound();
+  // }),
 ];
