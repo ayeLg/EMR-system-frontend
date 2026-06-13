@@ -9,6 +9,7 @@ export const ROUTES = {
   clinicalDocs: "/clinical-docs",
   pharmacy: "/pharmacy",
   laboratory: "/laboratory",
+  radiology: "/radiology",
   billing: "/billing",
   printPreviews: "/print-previews",
   reports: "/reports",

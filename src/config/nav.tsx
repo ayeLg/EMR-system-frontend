@@ -45,6 +45,7 @@ export const NAV_ITEMS: NavItem[] = [
   // Operations
   { key: "pharmacy", labelKey: "pharmacy", icon: <MedicineBoxOutlined />, path: ROUTES.pharmacy, group: "operations", permission: "pharmacy:read" },
   { key: "laboratory", labelKey: "laboratory", icon: <ExperimentOutlined />, path: ROUTES.laboratory, group: "operations", permission: "laboratory:read" },
+  { key: "radiology", labelKey: "radiology", icon: <ExperimentOutlined />, path: ROUTES.radiology, group: "operations", permission: "radiology:read" },
   { key: "billing", labelKey: "billing", icon: <DollarOutlined />, path: ROUTES.billing, group: "operations", permission: "billing:read" },
   { key: "printPreviews", labelKey: "printPreviews", icon: <PrinterOutlined />, path: ROUTES.printPreviews, group: "operations", permission: "patient:read" },
   // Admin

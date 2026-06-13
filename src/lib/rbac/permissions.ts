@@ -96,6 +96,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     ...crud("appointment", ["read", "create", "update"]),
     ...crud("encounter", ["read", "create", "update"]),
     ...crud("laboratory", ["read"]),
+    ...crud("radiology", ["read", "create", "update"]),
     ...crud("report", ["read"]),
   ],
   NURSE: [
