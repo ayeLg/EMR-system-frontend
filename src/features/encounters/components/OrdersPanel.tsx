@@ -22,6 +22,12 @@ import {
   createPrescription,
   type CreatePrescriptionPayload,
 } from "../api/encounters-api";
+import {
+  useEncounter,
+  useLabTests,
+  useCreateLabOrder,
+  useCreateMedicalOrder,
+} from "../hooks/useEncounters";
 
 const ROUTE_OPTIONS = [
   { label: "Oral", value: "ORAL" },
@@ -52,6 +58,12 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
 
+  // Queries & Mutations
+  const { data: encounter } = useEncounter(encounterId);
+  const { data: labTests = [] } = useLabTests();
+  const createLabOrderMutation = useCreateLabOrder(encounterId);
+  const createMedicalOrderMutation = useCreateMedicalOrder(encounterId);
+
   const { data: medications = [], isLoading: loadingMeds } = useQuery({
     queryKey: ["medications"],
     queryFn: getMedications,
@@ -81,6 +93,62 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
     }
   };
 
+  const handleOrderLabCBC = async () => {
+    const cbcTest = labTests.find((t) => t.code === "CBC");
+    if (!cbcTest) {
+      message.error("CBC lab test not found in master data.");
+      return;
+    }
+
+    try {
+      await createLabOrderMutation.mutateAsync({
+        labTestIds: [cbcTest.id],
+        priority: "ROUTINE",
+      });
+      message.success("Lab order placed: CBC.");
+    } catch (err: unknown) {
+      const apiErr = err as {
+        response?: { data?: { message?: string | string[] } };
+        message?: string;
+      };
+      const msg = apiErr.response?.data?.message ?? apiErr.message ?? "Failed to order lab CBC";
+      message.error(Array.isArray(msg) ? msg.join(", ") : msg);
+    }
+  };
+
+  const handleOrderXRay = async () => {
+    try {
+      await createMedicalOrderMutation.mutateAsync({
+        orderType: "RADIOLOGY",
+        description: "Chest X-ray",
+        priority: "ROUTINE",
+      });
+      message.success("Radiology order placed: Chest X-ray.");
+    } catch (err: unknown) {
+      const apiErr = err as {
+        response?: { data?: { message?: string | string[] } };
+        message?: string;
+      };
+      const msg = apiErr.response?.data?.message ?? apiErr.message ?? "Failed to order X-ray";
+      message.error(Array.isArray(msg) ? msg.join(", ") : msg);
+    }
+  };
+
+  // Map backend labOrders and medicalOrders
+  const backendLabOrders = encounter?.labOrders.flatMap((lo) =>
+    lo.items.map((item) => ({
+      label: `Lab · ${item.name}`,
+      type: "lab" as const,
+    }))
+  ) ?? [];
+
+  const backendMedicalOrders = encounter?.medicalOrders.map((mo) => ({
+    label: `${mo.orderType === "RADIOLOGY" ? "Radiology" : mo.orderType} · ${mo.description}`,
+    type: (mo.orderType === "RADIOLOGY" ? "radiology" : "rx") as "radiology" | "rx" | "lab",
+  })) ?? [];
+
+  const displayedOrders = [...orders, ...backendLabOrders, ...backendMedicalOrders];
+
   return (
     <Flex vertical gap={16}>
       <Card size="small" title="New prescription">
@@ -94,33 +162,26 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
           </Button>
           <Button
             icon={<ExperimentOutlined />}
-            onClick={() => {
-              setOrders((p) => [...p, { label: "Lab · CBC", type: "lab" }]);
-              message.success("Lab order placed: CBC.");
-            }}
+            loading={createLabOrderMutation.isPending}
+            onClick={handleOrderLabCBC}
           >
             Order lab (CBC)
           </Button>
           <Button
-            onClick={() => {
-              setOrders((p) => [
-                ...p,
-                { label: "Radiology · Chest X-ray", type: "radiology" },
-              ]);
-              message.success("Radiology order placed: Chest X-ray.");
-            }}
+            loading={createMedicalOrderMutation.isPending}
+            onClick={handleOrderXRay}
           >
             Order X-ray
           </Button>
         </Space>
       </Card>
 
-      <Card size="small" title={`Orders placed (${orders.length})`}>
-        {orders.length === 0 ? (
+      <Card size="small" title={`Orders placed (${displayedOrders.length})`}>
+        {displayedOrders.length === 0 ? (
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No orders yet" />
         ) : (
           <Flex vertical gap={8}>
-            {orders.map((o, i) => (
+            {displayedOrders.map((o, i) => (
               <Tag key={`${o.label}-${i}`} color={tagColor(o.type)}>
                 {o.label}
               </Tag>

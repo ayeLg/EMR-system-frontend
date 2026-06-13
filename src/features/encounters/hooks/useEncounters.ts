@@ -10,6 +10,11 @@ import {
   recordEncounterVitals,
   saveSoapNote,
   updateEncounterStatus,
+  createLabOrder,
+  createMedicalOrder,
+  getLabTests,
+  type CreateLabOrderPayload,
+  type CreateMedicalOrderPayload,
 } from "../api/encounters-api";
 
 export function useEncounters() {
@@ -62,5 +67,29 @@ export function useUpdateEncounterStatus(encounterId: string) {
       queryClient.invalidateQueries({ queryKey: ["encounter", encounterId] });
       queryClient.invalidateQueries({ queryKey: ["encounters"] });
     },
+  });
+}
+
+export function useLabTests() {
+  return useQuery({ queryKey: ["lab-tests"], queryFn: getLabTests });
+}
+
+export function useCreateLabOrder(encounterId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateLabOrderPayload) =>
+      createLabOrder(encounterId, payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["encounter", encounterId] }),
+  });
+}
+
+export function useCreateMedicalOrder(encounterId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CreateMedicalOrderPayload) =>
+      createMedicalOrder(encounterId, payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["encounter", encounterId] }),
   });
 }

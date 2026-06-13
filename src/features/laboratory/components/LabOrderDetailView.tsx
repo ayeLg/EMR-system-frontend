@@ -9,7 +9,7 @@ import { ResultsEntry } from "./ResultsEntry";
 
 const { Text } = Typography;
 
-export function LabOrderDetailView({ id }: { id: string }) {
+export function LabOrderDetailView({ id }: Readonly<{ id: string }>) {
   const { data, isLoading } = useLabOrder(id);
 
   if (isLoading) return <Skeleton active paragraph={{ rows: 6 }} />;
@@ -37,7 +37,7 @@ export function LabOrderDetailView({ id }: { id: string }) {
           {data.clinicalNotes}
         </Card>
       ) : null}
-      <ResultsEntry items={data.items} />
+      <ResultsEntry key={data.id} items={data.items} orderId={data.id} status={data.status} />
     </>
   );
 }

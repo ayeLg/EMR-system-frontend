@@ -37,5 +37,7 @@ export function getMockEncounterDetail(id: string): EncounterDetail | undefined 
       weightKg: 72,
     },
     diagnoses: [],
+    labOrders: [],
+    medicalOrders: [],
   };
 }

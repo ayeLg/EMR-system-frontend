@@ -83,3 +83,53 @@ export async function createPrescription(
   );
   return data;
 }
+
+export interface CreateLabOrderPayload {
+  labTestIds: string[];
+  priority?: "STAT" | "URGENT" | "ROUTINE";
+  clinicalNotes?: string;
+}
+
+export interface CreateMedicalOrderPayload {
+  orderType: "RADIOLOGY" | "DIET" | "NURSING" | "REFERRAL";
+  priority?: "STAT" | "URGENT" | "ROUTINE";
+  description: string;
+  notes?: string;
+}
+
+export interface LabTestSummary {
+  id: string;
+  code: string;
+  name: string;
+  category: string;
+  sampleType: string;
+  price: number;
+}
+
+export async function createLabOrder(
+  encounterId: string,
+  payload: CreateLabOrderPayload,
+): Promise<{ id: string }> {
+  const { data } = await apiClient.post<{ id: string }>(
+    `/encounters/${encounterId}/lab-orders`,
+    payload,
+  );
+  return data;
+}
+
+export async function createMedicalOrder(
+  encounterId: string,
+  payload: CreateMedicalOrderPayload,
+): Promise<{ id: string }> {
+  const { data } = await apiClient.post<{ id: string }>(
+    `/encounters/${encounterId}/orders`,
+    payload,
+  );
+  return data;
+}
+
+export async function getLabTests(): Promise<LabTestSummary[]> {
+  const { data } = await apiClient.get<LabTestSummary[]>("/master-data/lab-tests");
+  return data;
+}
+

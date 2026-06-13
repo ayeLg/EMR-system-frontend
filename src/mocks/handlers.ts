@@ -3,18 +3,18 @@ import { http } from "msw";
 // /api/patients* requests pass through (onUnhandledRequest: "bypass") to NestJS.
 import { MOCK_ENCOUNTERS, getMockEncounterDetail } from "@/lib/mock/encounters";
 import { MOCK_PRESCRIPTIONS, MOCK_INVENTORY } from "@/lib/mock/pharmacy";
-import { MOCK_LAB_ORDERS, getMockLabOrderDetail } from "@/lib/mock/laboratory";
+
 import { MOCK_INVOICES, getMockInvoiceDetail } from "@/lib/mock/billing";
 import { notFound, ok } from "./envelope";
 
 export const handlers = [
   // http.get("/api/pharmacy/prescriptions", () => ok(MOCK_PRESCRIPTIONS)),
   // http.get("/api/pharmacy/inventory", () => ok(MOCK_INVENTORY)),
-  http.get("/api/lab/orders", () => ok(MOCK_LAB_ORDERS)),
-  http.get("/api/lab/orders/:id", ({ params }) => {
-    const detail = getMockLabOrderDetail(String(params.id));
-    return detail ? ok(detail) : notFound();
-  }),
+  // http.get("/api/lab/orders", () => ok(MOCK_LAB_ORDERS)),
+  // http.get("/api/lab/orders/:id", ({ params }) => {
+  //   const detail = getMockLabOrderDetail(String(params.id));
+  //   return detail ? ok(detail) : notFound();
+  // }),
   http.get("/api/billing/invoices", () => ok(MOCK_INVOICES)),
   http.get("/api/billing/invoices/:id", ({ params }) => {
     const detail = getMockInvoiceDetail(String(params.id));
