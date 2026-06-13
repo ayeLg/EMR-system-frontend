@@ -11,11 +11,11 @@ export function AddUserModal({
   open,
   onClose,
   user,
-}: {
+}: Readonly<{
   open: boolean;
   onClose: () => void;
   user?: StaffUser | null;
-}) {
+}>) {
   const { message } = App.useApp();
   const [form] = Form.useForm();
   const isEdit = !!user;
@@ -59,8 +59,9 @@ export function AddUserModal({
         }
         form.resetFields();
         onClose();
-      } catch (err: any) {
-        message.error(err.message || "Failed to save staff user");
+      } catch (err: unknown) {
+        const apiErr = err as { message?: string };
+        message.error(apiErr.message || "Failed to save staff user");
       }
     });
   };

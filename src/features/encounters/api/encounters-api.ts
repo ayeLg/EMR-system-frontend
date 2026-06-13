@@ -7,6 +7,18 @@ import type {
 } from "../types";
 import type { SoapValues, VitalsValues } from "../schemas";
 
+export interface CreatePrescriptionPayload {
+  medicationId: string;
+  dose: string;
+  route: string;
+  frequency: string;
+  quantityPrescribed: number;
+  durationDays?: number;
+  instructions?: string;
+  overrideReason?: string;
+  notes?: string;
+}
+
 export async function getEncounters(): Promise<Encounter[]> {
   const { data } = await apiClient.get<Encounter[]>("/encounters");
   return data;
@@ -57,6 +69,17 @@ export async function updateEncounterStatus(
   const { data } = await apiClient.patch<Encounter>(
     `/encounters/${encounterId}/status`,
     { status },
+  );
+  return data;
+}
+
+export async function createPrescription(
+  encounterId: string,
+  payload: CreatePrescriptionPayload,
+): Promise<{ id: string }> {
+  const { data } = await apiClient.post<{ id: string }>(
+    `/encounters/${encounterId}/prescriptions`,
+    payload,
   );
   return data;
 }

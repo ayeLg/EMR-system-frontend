@@ -20,11 +20,11 @@ const STATUS_COLOR: Record<StaffStatus, string> = {
 };
 
 interface UsersTableProps {
-  modalOpen: boolean;
-  onCloseModal: () => void;
+  readonly modalOpen: boolean;
+  readonly onCloseModal: () => void;
 }
 
-export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
+export function UsersTable({ modalOpen, onCloseModal }: Readonly<UsersTableProps>) {
   const { data, isLoading } = useStaff();
   const deleteUserMutation = useDeleteUser();
   const { message } = App.useApp();
@@ -68,8 +68,9 @@ export function UsersTable({ modalOpen, onCloseModal }: UsersTableProps) {
               try {
                 await deleteUserMutation.mutateAsync(r.id);
                 message.success("User deactivated successfully.");
-              } catch (err: any) {
-                message.error(err.message || "Failed to deactivate user");
+              } catch (err: unknown) {
+                const apiErr = err as { message?: string };
+                message.error(apiErr.message || "Failed to deactivate user");
               }
             }}
             okText="Deactivate"

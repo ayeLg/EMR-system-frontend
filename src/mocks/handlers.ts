@@ -8,8 +8,8 @@ import { MOCK_INVOICES, getMockInvoiceDetail } from "@/lib/mock/billing";
 import { notFound, ok } from "./envelope";
 
 export const handlers = [
-  http.get("/api/pharmacy/prescriptions", () => ok(MOCK_PRESCRIPTIONS)),
-  http.get("/api/pharmacy/inventory", () => ok(MOCK_INVENTORY)),
+  // http.get("/api/pharmacy/prescriptions", () => ok(MOCK_PRESCRIPTIONS)),
+  // http.get("/api/pharmacy/inventory", () => ok(MOCK_INVENTORY)),
   http.get("/api/lab/orders", () => ok(MOCK_LAB_ORDERS)),
   http.get("/api/lab/orders/:id", ({ params }) => {
     const detail = getMockLabOrderDetail(String(params.id));

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { TableProps } from "antd";
 import { Button, Tag } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { usePrescriptions } from "../hooks/usePharmacy";
@@ -13,7 +14,7 @@ import { DispenseModal } from "./DispenseModal";
 export function PrescriptionQueue() {
   const { data, isLoading } = usePrescriptions();
   const [selected, setSelected] = useState<Prescription | null>(null);
-  const [dispensedIds, setDispensedIds] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
   // STAT first, then by time.
   const rows = useMemo(() => {
@@ -42,15 +43,14 @@ export function PrescriptionQueue() {
       title: "Status",
       key: "status",
       render: (_, r) => {
-        const status = dispensedIds.includes(r.id) ? "DISPENSED" : r.status;
-        return <Tag color={RX_STATUS_META[status].color}>{RX_STATUS_META[status].label}</Tag>;
+        return <Tag color={RX_STATUS_META[r.status].color}>{RX_STATUS_META[r.status].label}</Tag>;
       },
     },
     {
       title: "Action",
       key: "action",
       render: (_, r) =>
-        dispensedIds.includes(r.id) ? null : (
+        r.status === "DISPENSED" || r.status === "CANCELLED" || r.status === "EXPIRED" ? null : (
           <Button size="small" type="primary" onClick={() => setSelected(r)}>
             Dispense
           </Button>
@@ -72,8 +72,9 @@ export function PrescriptionQueue() {
         rx={selected}
         open={!!selected}
         onClose={() => setSelected(null)}
-        onDispensed={(id) => {
-          setDispensedIds((p) => [...p, id]);
+        onDispensed={() => {
+          queryClient.invalidateQueries({ queryKey: ["prescriptions"] });
+          queryClient.invalidateQueries({ queryKey: ["inventory"] });
           setSelected(null);
         }}
       />

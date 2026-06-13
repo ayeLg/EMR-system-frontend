@@ -15,7 +15,7 @@ import { VitalsPanel } from "./VitalsPanel";
 import { DiagnosesPanel } from "./DiagnosesPanel";
 import { OrdersPanel } from "./OrdersPanel";
 
-export function EncounterDetailView({ id }: { id: string }) {
+export function EncounterDetailView({ id }: Readonly<{ id: string }>) {
   const { data, isLoading } = useEncounter(id);
   const updateStatus = useUpdateEncounterStatus(id);
   const { message, modal } = App.useApp();
@@ -83,7 +83,7 @@ export function EncounterDetailView({ id }: { id: string }) {
               <DiagnosesPanel encounterId={id} initial={data.diagnoses} />
             ),
           },
-          { key: "orders", label: "Orders", children: <OrdersPanel /> },
+          { key: "orders", label: "Orders", children: <OrdersPanel encounterId={id} /> },
         ]}
       />
     </>
