@@ -15,11 +15,11 @@ export const handlers = [
   //   const detail = getMockLabOrderDetail(String(params.id));
   //   return detail ? ok(detail) : notFound();
   // }),
-  http.get("/api/billing/invoices", () => ok(MOCK_INVOICES)),
-  http.get("/api/billing/invoices/:id", ({ params }) => {
-    const detail = getMockInvoiceDetail(String(params.id));
-    return detail ? ok(detail) : notFound();
-  }),
+  // http.get("/api/billing/invoices", () => ok(MOCK_INVOICES)),
+  // http.get("/api/billing/invoices/:id", ({ params }) => {
+  //   const detail = getMockInvoiceDetail(String(params.id));
+  //   return detail ? ok(detail) : notFound();
+  // }),
   
   // http.get("/api/appointments", () => ok(MOCK_APPOINTMENTS)),
   // http.get("/api/appointments/:id", ({ params }) => {

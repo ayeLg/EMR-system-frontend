@@ -27,6 +27,8 @@ export interface Payment {
   amount: number;
   method: PaymentMethod;
   paidAt: string;
+  referenceNo?: string | null;
+  notes?: string | null;
 }
 
 export interface Invoice {
@@ -38,6 +40,8 @@ export interface Invoice {
   patientBalance: number;
   status: InvoiceStatus;
   issuedAt: string;
+  paidAmount: number;
+  notes?: string | null;
 }
 
 export interface InvoiceDetail extends Invoice {
@@ -48,3 +52,20 @@ export interface InvoiceDetail extends Invoice {
   items: InvoiceItem[];
   payments: Payment[];
 }
+
+export interface RecordPaymentPayload {
+  amount: number;
+  method: PaymentMethod;
+  referenceNo?: string;
+  notes?: string;
+}
+
+export interface SubmitClaimPayload {
+  insuranceProvider: string;
+  policyNumber: string;
+}
+
+export interface VoidInvoicePayload {
+  reason: string;
+}
+

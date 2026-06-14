@@ -1,34 +1,83 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { TableProps } from "antd";
-import { App, Button, Card, Descriptions, Flex, Popconfirm, Skeleton, Space, Table, Tag } from "antd";
+import { App, Button, Card, Descriptions, Flex, Skeleton, Space, Table, Tag } from "antd";
+import dayjs from "dayjs";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
-import { useInvoice } from "../hooks/useBilling";
+import {
+  useInvoice,
+  useRecordPayment,
+  useSubmitClaim,
+  useVoidInvoice,
+} from "../hooks/useBilling";
 import { INVOICE_STATUS_META, PAYMENT_METHOD_OPTIONS, formatMMK } from "../constants";
-import type { InvoiceItem, Payment, PaymentMethod } from "../types";
+import type { InvoiceItem, PaymentMethod } from "../types";
 import { PaymentModal } from "./PaymentModal";
+import { SubmitClaimModal } from "./SubmitClaimModal";
+import { VoidInvoiceModal } from "./VoidInvoiceModal";
 
 const methodLabel = (m: PaymentMethod) =>
   PAYMENT_METHOD_OPTIONS.find((o) => o.value === m)?.label ?? m;
 
-export function InvoiceDetailView({ id }: { id: string }) {
-  const { data, isLoading } = useInvoice(id);
+export function InvoiceDetailView({ id }: { readonly id: string }) {
+  const { data, isLoading, error } = useInvoice(id);
   const { message } = App.useApp();
-  const [payments, setPayments] = useState<Payment[] | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
 
-  const rows = useMemo(
-    () => payments ?? data?.payments ?? [],
-    [payments, data],
-  );
-  const paid = useMemo(() => rows.reduce((s, p) => s + p.amount, 0), [rows]);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [claimOpen, setClaimOpen] = useState(false);
+  const [voidOpen, setVoidOpen] = useState(false);
+
+  // Mutations
+  const recordPaymentMutation = useRecordPayment(id);
+  const submitClaimMutation = useSubmitClaim(id);
+  const voidInvoiceMutation = useVoidInvoice(id);
 
   if (isLoading) return <Skeleton active paragraph={{ rows: 6 }} />;
-  if (!data) return <EmptyState description="Invoice not found" />;
+  if (error || !data) return <EmptyState description="Invoice not found or error loading invoice" />;
 
-  const outstanding = data.patientBalance - paid;
+  const outstanding = data.patientBalance;
+  const isVoid = data.status === "VOID";
+  const isPaid = data.status === "PAID";
+
+  const handleRecordPayment = async (
+    amount: number,
+    method: PaymentMethod,
+    referenceNo?: string,
+    notes?: string
+  ) => {
+    try {
+      await recordPaymentMutation.mutateAsync({ amount, method, referenceNo, notes });
+      setPaymentOpen(false);
+      message.success(`Payment of ${formatMMK(amount)} recorded successfully.`);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      message.error(error.response?.data?.message || "Failed to record payment.");
+    }
+  };
+
+  const handleSubmitClaim = async (insuranceProvider: string, policyNumber: string) => {
+    try {
+      await submitClaimMutation.mutateAsync({ insuranceProvider, policyNumber });
+      setClaimOpen(false);
+      message.success("Insurance claim submitted and processed successfully.");
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      message.error(error.response?.data?.message || "Failed to submit insurance claim.");
+    }
+  };
+
+  const handleVoidInvoice = async (reason: string) => {
+    try {
+      await voidInvoiceMutation.mutateAsync({ reason });
+      setVoidOpen(false);
+      message.success("Invoice voided successfully.");
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      message.error(error.response?.data?.message || "Failed to void invoice.");
+    }
+  };
 
   const itemColumns: TableProps<InvoiceItem>["columns"] = [
     { title: "Description", dataIndex: "description", key: "description" },
@@ -47,28 +96,26 @@ export function InvoiceDetailView({ id }: { id: string }) {
             <Tag color={INVOICE_STATUS_META[data.status].color}>
               {INVOICE_STATUS_META[data.status].label}
             </Tag>
-            {outstanding > 0 ? (
-              <Button type="primary" onClick={() => setModalOpen(true)}>
+            {outstanding > 0 && !isVoid ? (
+              <Button type="primary" onClick={() => setPaymentOpen(true)}>
                 Record payment
               </Button>
             ) : null}
-            <Button onClick={() => message.info("Insurance claim submitted to TPA (mock).")}>
-              Submit claim
-            </Button>
-            {data.status === "PAID" ? (
+            {!isVoid && !isPaid && data.insuranceCoverage === 0 ? (
+              <Button onClick={() => setClaimOpen(true)}>
+                Submit claim
+              </Button>
+            ) : null}
+            {isPaid && (
               <Button onClick={() => message.info("Credit note created (mock). PAID invoices cannot be voided directly.")}>
                 Create credit note
               </Button>
-            ) : data.status !== "VOID" ? (
-              <Popconfirm
-                title="Void invoice? (supervisor only, reason required, audit-logged)"
-                onConfirm={() => message.success("Invoice voided (mock). Reason logged to audit.")}
-                okText="Void"
-                okButtonProps={{ danger: true }}
-              >
-                <Button danger>Void</Button>
-              </Popconfirm>
-            ) : null}
+            )}
+            {!isPaid && !isVoid && (
+              <Button danger onClick={() => setVoidOpen(true)}>
+                Void
+              </Button>
+            )}
           </Space>
         }
       />
@@ -91,23 +138,30 @@ export function InvoiceDetailView({ id }: { id: string }) {
           <Descriptions.Item label="Total">{formatMMK(data.totalAmount)}</Descriptions.Item>
           <Descriptions.Item label="Insurance coverage">− {formatMMK(data.insuranceCoverage)}</Descriptions.Item>
           <Descriptions.Item label="Patient balance">{formatMMK(data.patientBalance)}</Descriptions.Item>
-          <Descriptions.Item label="Paid">{formatMMK(paid)}</Descriptions.Item>
+          <Descriptions.Item label="Paid">{formatMMK(data.paidAmount)}</Descriptions.Item>
           <Descriptions.Item label="Outstanding">
             <strong style={{ color: outstanding > 0 ? "#cf1322" : "#389e0d" }}>
               {formatMMK(outstanding)}
             </strong>
           </Descriptions.Item>
+          {data.notes && (
+            <Descriptions.Item label="Notes" span={2}>
+              {data.notes}
+            </Descriptions.Item>
+          )}
         </Descriptions>
       </Card>
 
-      <Card size="small" title={`Payments (${rows.length})`}>
-        {rows.length === 0 ? (
+      <Card size="small" title={`Payments (${data.payments?.length ?? 0})`}>
+        {!data.payments || data.payments.length === 0 ? (
           <EmptyState description="No payments yet" />
         ) : (
           <Flex vertical gap={6}>
-            {rows.map((p) => (
+            {data.payments.map((p) => (
               <div key={p.id}>
-                {formatMMK(p.amount)} · {methodLabel(p.method)} · {p.paidAt}
+                {formatMMK(p.amount)} · {methodLabel(p.method)} · {p.paidAt ? dayjs(p.paidAt).format("YYYY-MM-DD HH:mm") : "—"}
+                {p.referenceNo && ` (Ref: ${p.referenceNo})`}
+                {p.notes && ` - Note: ${p.notes}`}
               </div>
             ))}
           </Flex>
@@ -115,17 +169,25 @@ export function InvoiceDetailView({ id }: { id: string }) {
       </Card>
 
       <PaymentModal
-        open={modalOpen}
+        open={paymentOpen}
         outstanding={outstanding}
-        onClose={() => setModalOpen(false)}
-        onRecord={(amount, method) => {
-          setPayments([
-            ...rows,
-            { id: `p${rows.length + 1}`, amount, method, paidAt: "now" },
-          ]);
-          setModalOpen(false);
-          message.success(`Payment of ${formatMMK(amount)} recorded.`);
-        }}
+        loading={recordPaymentMutation.isPending}
+        onClose={() => setPaymentOpen(false)}
+        onRecord={handleRecordPayment}
+      />
+
+      <SubmitClaimModal
+        open={claimOpen}
+        loading={submitClaimMutation.isPending}
+        onClose={() => setClaimOpen(false)}
+        onSubmit={handleSubmitClaim}
+      />
+
+      <VoidInvoiceModal
+        open={voidOpen}
+        loading={voidInvoiceMutation.isPending}
+        onClose={() => setVoidOpen(false)}
+        onVoid={handleVoidInvoice}
       />
     </>
   );

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { TableProps } from "antd";
 import { Tag } from "antd";
+import dayjs from "dayjs";
 import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
 import { ROUTES } from "@/config/routes";
@@ -19,7 +20,12 @@ export function InvoiceTable() {
     { title: "Patient", key: "patient", render: (_, r) => `${r.patientName} · ${r.mrn}` },
     { title: "Total", key: "total", render: (_, r) => formatMMK(r.totalAmount) },
     { title: "Balance", key: "balance", render: (_, r) => formatMMK(r.patientBalance) },
-    { title: "Issued", dataIndex: "issuedAt", key: "issuedAt" },
+    {
+      title: "Issued",
+      dataIndex: "issuedAt",
+      key: "issuedAt",
+      render: (val) => (val ? dayjs(val).format("YYYY-MM-DD HH:mm") : "—"),
+    },
     {
       title: "Status",
       key: "status",
