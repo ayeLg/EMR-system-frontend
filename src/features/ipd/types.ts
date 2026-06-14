@@ -10,6 +10,7 @@ export interface WardOccupancy {
 export interface Inpatient {
   id: string;
   patientName: string;
+  patientId: string;
   mrn: string;
   ward: string;
   wardId: string;
