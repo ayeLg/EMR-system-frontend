@@ -109,5 +109,15 @@
     "male": "ကျား",
     "female": "မ",
     "other": "အခြား"
+  },
+  "services": {
+    "categories": {
+      "consultation": "ဆရာဝန်ပြသခ",
+      "procedure": "ဆေးကုသမှု လုပ်ဆောင်ချက်",
+      "investigation": "စမ်းသပ်စစ်ဆေးခ",
+      "roomCharge": "အခန်း/ကုတင်ခ",
+      "nursingFee": "ပြုစုစောင့်ရှောက်ခ",
+      "medicalSupplies": "ဆေးပစ္စည်းသုံးစွဲခ"
+    }
   }
 }

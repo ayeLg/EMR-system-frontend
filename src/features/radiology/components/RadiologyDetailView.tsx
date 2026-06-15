@@ -169,10 +169,10 @@ export function RadiologyDetailView({ id }: Readonly<{ id: string }>) {
         }
       />
 
-      <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+      <Space vertical size="middle" style={{ width: "100%" }}>
         {/* Order Details Panel */}
         <Card size="small" title="Order Information">
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space vertical style={{ width: "100%" }}>
             <div>
               <Text type="secondary">Procedure: </Text>
               <Text strong>{data.description}</Text>
@@ -202,7 +202,7 @@ export function RadiologyDetailView({ id }: Readonly<{ id: string }>) {
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                <Space vertical size="small" style={{ width: "100%" }}>
                   <Text strong style={{ fontSize: 16 }}>
                     Awaiting Scan Execution
                   </Text>
@@ -316,7 +316,7 @@ export function RadiologyDetailView({ id }: Readonly<{ id: string }>) {
 
         {isCompleted && data.details && (
           <Card title="Radiology Report" extra={<Tag color="green">Verified & Completed</Tag>}>
-            <Space direction="vertical" style={{ width: "100%" }} size="middle">
+            <Space vertical style={{ width: "100%" }} size="middle">
               {data.details.imagingUrl && (
                 <div style={{ textAlign: "center", background: "#000", padding: 16, borderRadius: 8 }}>
                   <Image
@@ -356,7 +356,7 @@ export function RadiologyDetailView({ id }: Readonly<{ id: string }>) {
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                <Space vertical size="small" style={{ width: "100%" }}>
                   <Text strong style={{ fontSize: 16 }}>
                     Order Cancelled
                   </Text>

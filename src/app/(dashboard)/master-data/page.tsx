@@ -1,10 +1,12 @@
 "use client";
 
 import { Tabs } from "antd";
+import { useTranslations } from "next-intl";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { MasterCrud } from "@/features/master-data/MasterCrud";
 
 export default function MasterDataPage() {
+  const t = useTranslations("services.categories");
   return (
     <>
       <PageHeader title="Master data" subtitle="Reference catalogs (admin)" />
@@ -41,13 +43,41 @@ export default function MasterDataPage() {
                 columns={[
                   { title: "Code", dataIndex: "code", key: "code" },
                   { title: "Name", dataIndex: "name", key: "name" },
-                  { title: "Category", dataIndex: "category", key: "category" },
+                  {
+                    title: "Category",
+                    dataIndex: "category",
+                    key: "category",
+                    render: (val: string) => {
+                      const map: Record<string, string> = {
+                        Consultation: t("consultation"),
+                        Procedure: t("procedure"),
+                        Investigation: t("investigation"),
+                        "Room Charge": t("roomCharge"),
+                        "Nursing Fee": t("nursingFee"),
+                        "Medical Supplies": t("medicalSupplies"),
+                      };
+                      return map[val] || val;
+                    },
+                  },
                   { title: "Price (Ks)", dataIndex: "price", key: "price" },
                 ]}
                 fields={[
                   { name: "code", label: "Code", required: true },
                   { name: "name", label: "Name", required: true },
-                  { name: "category", label: "Category", required: true },
+                  {
+                    name: "category",
+                    label: "Category",
+                    type: "select",
+                    required: true,
+                    options: [
+                      { label: t("consultation"), value: "Consultation" },
+                      { label: t("procedure"), value: "Procedure" },
+                      { label: t("investigation"), value: "Investigation" },
+                      { label: t("roomCharge"), value: "Room Charge" },
+                      { label: t("nursingFee"), value: "Nursing Fee" },
+                      { label: t("medicalSupplies"), value: "Medical Supplies" },
+                    ],
+                  },
                   { name: "price", label: "Price (Ks)", type: "number", required: true },
                   { name: "taxRate", label: "Tax rate (%)", type: "number" },
                 ]}

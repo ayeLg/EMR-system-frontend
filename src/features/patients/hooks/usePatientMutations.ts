@@ -5,7 +5,9 @@ import {
   createPatient,
   deletePatient,
   updatePatient,
+  addAllergy,
 } from "../api/patients-api";
+import type { AddAllergyPayload } from "../api/patients-api";
 import type {
   CreatePatientPayload,
   UpdatePatientPayload,
@@ -38,6 +40,16 @@ export function useDeletePatient() {
     mutationFn: (id: string) => deletePatient(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["patients"] });
+    },
+  });
+}
+
+export function useAddAllergy(patientId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: AddAllergyPayload) => addAllergy(patientId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["patient", patientId] });
     },
   });
 }

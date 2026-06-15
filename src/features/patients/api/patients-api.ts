@@ -38,3 +38,17 @@ export async function updatePatient(
 export async function deletePatient(id: string): Promise<void> {
   await apiClient.delete(`/patients/${id}`);
 }
+
+export interface AddAllergyPayload {
+  allergenType: "DRUG" | "FOOD" | "ENVIRONMENTAL" | "OTHER";
+  allergenName: string;
+  severity: "MILD" | "MODERATE" | "SEVERE" | "FATAL";
+  reaction?: string;
+}
+
+export async function addAllergy(
+  patientId: string,
+  payload: AddAllergyPayload,
+): Promise<void> {
+  await apiClient.post(`/patients/${patientId}/allergies`, payload);
+}

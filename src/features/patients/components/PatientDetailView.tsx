@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import type { TableProps } from "antd";
 import { Button, Descriptions, Skeleton, Space, Tabs, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
+import { AllergyFormModal } from "./AllergyFormModal";
 import { ROUTES } from "@/config/routes";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusTag } from "@/components/ui/StatusTag";
@@ -26,6 +28,7 @@ function label(options: { label: string; value: string }[], value: string) {
 
 export function PatientDetailView({ id }: { id: string }) {
   const { data, isLoading } = usePatient(id);
+  const [allergyModalOpen, setAllergyModalOpen] = useState(false);
 
   if (isLoading) return <Skeleton active paragraph={{ rows: 8 }} />;
   if (!data) return <EmptyState description="Patient not found" />;
@@ -93,11 +96,23 @@ export function PatientDetailView({ id }: { id: string }) {
             key: "allergies",
             label: `Allergies (${data.allergies.length})`,
             children: (
-              <DataTable<PatientAllergy>
-                rowKey="id"
-                columns={allergyColumns}
-                dataSource={data.allergies}
-              />
+              <Space direction="vertical" style={{ width: "100%" }} size={16}>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <Button type="primary" onClick={() => setAllergyModalOpen(true)}>
+                    Add Allergy
+                  </Button>
+                </div>
+                <DataTable<PatientAllergy>
+                  rowKey="id"
+                  columns={allergyColumns}
+                  dataSource={data.allergies}
+                />
+                <AllergyFormModal
+                  patientId={id}
+                  open={allergyModalOpen}
+                  onCancel={() => setAllergyModalOpen(false)}
+                />
+              </Space>
             ),
           },
           {
