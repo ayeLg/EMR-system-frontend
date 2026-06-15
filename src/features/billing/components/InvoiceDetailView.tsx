@@ -145,7 +145,7 @@ export function InvoiceDetailView({ id }: { readonly id: string }) {
             </strong>
           </Descriptions.Item>
           {data.notes && (
-            <Descriptions.Item label="Notes" span={2}>
+            <Descriptions.Item label="Notes" span={{ xs: 1, sm: 2 }}>
               {data.notes}
             </Descriptions.Item>
           )}
