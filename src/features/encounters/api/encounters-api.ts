@@ -31,7 +31,7 @@ export async function getEncounter(id: string): Promise<EncounterDetail> {
 
 export async function saveSoapNote(
   encounterId: string,
-  values: SoapValues,
+  values: SoapValues & { amendedFrom?: string },
 ): Promise<{ id: string }> {
   const { data } = await apiClient.post<{ id: string }>(
     `/encounters/${encounterId}/notes`,

@@ -15,15 +15,22 @@ export interface Vitals {
   systolicBp?: number;
   diastolicBp?: number;
   heartRate?: number;
-  temperature?: number;
+  respiratoryRate?: number;
+  temperature?: number; // maps to vital_signs.temperature_celsius
   oxygenSaturation?: number;
   weightKg?: number;
+  heightCm?: number;
+  bmi?: number; // auto-calculated from weight + height
+  painScore?: number; // 0-10
+  bloodGlucose?: number;
+  notes?: string;
 }
 
 export interface Diagnosis {
   icd10Code: string;
   description: string;
   type: "PRIMARY" | "SECONDARY" | "COMPLICATION" | "COMORBIDITY";
+  notes?: string;
 }
 
 export interface LabOrderItem {
@@ -52,6 +59,17 @@ export interface EncounterMedicalOrder {
   orderedAt: string;
 }
 
+export interface SoapNoteRecord {
+  id: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  isAmended: boolean;
+  amendedFrom?: string;
+  createdAt: string;
+}
+
 export interface EncounterDetail extends Encounter {
   allergies: { allergenName: string; severity: string }[];
   currentMeds: { name: string; dose: string }[];
@@ -61,4 +79,5 @@ export interface EncounterDetail extends Encounter {
   diagnoses: Diagnosis[];
   labOrders: EncounterLabOrder[];
   medicalOrders: EncounterMedicalOrder[];
+  soapNotes: SoapNoteRecord[];
 }

@@ -28,6 +28,8 @@ export interface RecordVitalsPayload {
   heightCm: number;
   bmi: number;
   painScore: number;
+  bloodGlucose?: number;
+  notes?: string;
 }
 
 export async function getAppointments(): Promise<Appointment[]> {

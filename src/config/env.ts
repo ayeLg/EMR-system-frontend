@@ -16,10 +16,11 @@ function readBoolean(value: string | undefined, fallback: boolean): boolean {
 }
 
 const isProduction = process.env.NODE_ENV === "production";
-const isDevelopment = process.env.NODE_ENV === "development";
-const mswEnabled = readBoolean(
+// MSW is opt-in only. The app talks to the real backend by default; set
+// NEXT_PUBLIC_MSW_ENABLED=true to run against the in-browser mock instead.
+const mswEnabled = !isProduction && readBoolean(
   process.env.NEXT_PUBLIC_MSW_ENABLED,
-  isDevelopment,
+  false,
 );
 
 export const ENV = {

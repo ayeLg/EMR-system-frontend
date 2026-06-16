@@ -16,18 +16,6 @@ export const DIAGNOSIS_TYPE_OPTIONS = [
   { label: "Comorbidity", value: "COMORBIDITY" },
 ];
 
-export const ICD10_OPTIONS = [
-  { label: "I10 - Essential hypertension", value: "I10" },
-  { label: "E11 - Type 2 diabetes mellitus", value: "E11" },
-  { label: "J18.9 - Pneumonia, unspecified", value: "J18.9" },
-  { label: "K29.7 - Gastritis, unspecified", value: "K29.7" },
-  { label: "M54.5 - Low back pain", value: "M54.5" },
-  { label: "R51 - Headache", value: "R51" },
-];
-
-export const PRESCRIBABLE_DRUGS = [
-  { label: "Penicillin", value: "Penicillin", allergen: true },
-  { label: "Paracetamol", value: "Paracetamol", allergen: false },
-  { label: "Amoxicillin", value: "Amoxicillin", allergen: true },
-  { label: "Omeprazole", value: "Omeprazole", allergen: false },
-];
+// ICD-10 codes come from the backend catalog (GET /master-data/icd10).
+// Prescribable drugs come from the medication master (GET /pharmacy/medications),
+// used directly in the prescription modal — no hardcoded drug list.

@@ -32,7 +32,8 @@ export function useEncounter(id: string) {
 export function useSaveSoapNote(encounterId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (values: SoapValues) => saveSoapNote(encounterId, values),
+    mutationFn: (values: SoapValues & { amendedFrom?: string }) =>
+      saveSoapNote(encounterId, values),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["encounter", encounterId] }),
   });

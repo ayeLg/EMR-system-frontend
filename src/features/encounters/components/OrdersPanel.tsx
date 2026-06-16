@@ -28,6 +28,7 @@ import {
   useCreateLabOrder,
   useCreateMedicalOrder,
 } from "../hooks/useEncounters";
+import { AllergyAlertModal } from "./AllergyAlertModal";
 
 const ROUTE_OPTIONS = [
   { label: "Oral", value: "ORAL" },
@@ -38,6 +39,32 @@ const ROUTE_OPTIONS = [
   { label: "Inhaled", value: "INHALED" },
   { label: "Sublingual", value: "SUBLINGUAL" },
 ];
+
+const PRIORITY_OPTIONS = [
+  { label: "Routine", value: "ROUTINE" },
+  { label: "Urgent", value: "URGENT" },
+  { label: "STAT", value: "STAT" },
+];
+
+const ORDER_TYPE_OPTIONS = [
+  { label: "Radiology", value: "RADIOLOGY" },
+  { label: "Diet", value: "DIET" },
+  { label: "Nursing", value: "NURSING" },
+  { label: "Referral", value: "REFERRAL" },
+];
+
+type LabOrderFormValues = {
+  labTestIds: string[];
+  priority?: "STAT" | "URGENT" | "ROUTINE";
+  clinicalNotes?: string;
+};
+
+type MedicalOrderFormValues = {
+  orderType: "RADIOLOGY" | "DIET" | "NURSING" | "REFERRAL";
+  description: string;
+  priority?: "STAT" | "URGENT" | "ROUTINE";
+  notes?: string;
+};
 
 interface OrderItem {
   label: string;
@@ -50,17 +77,30 @@ function tagColor(type: OrderItem["type"]) {
   return "cyan";
 }
 
-export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) {
+export function OrdersPanel({
+  encounterId,
+  readOnly = false,
+}: Readonly<{ encounterId: string; readOnly?: boolean }>) {
   const { message } = App.useApp();
   const queryClient = useQueryClient();
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [labModalOpen, setLabModalOpen] = useState(false);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
+  const [labForm] = Form.useForm<LabOrderFormValues>();
+  const [orderForm] = Form.useForm<MedicalOrderFormValues>();
+  // Set when the backend blocks a prescription due to a drug allergy.
+  const [allergyAlert, setAllergyAlert] = useState<{
+    drug: string;
+    allergen: string;
+    values: CreatePrescriptionPayload;
+  } | null>(null);
 
   // Queries & Mutations
   const { data: encounter } = useEncounter(encounterId);
-  const { data: labTests = [] } = useLabTests();
+  const { data: labTests = [], isLoading: loadingLabTests } = useLabTests();
   const createLabOrderMutation = useCreateLabOrder(encounterId);
   const createMedicalOrderMutation = useCreateMedicalOrder(encounterId);
 
@@ -69,11 +109,13 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
     queryFn: getMedications,
   });
 
-  const handlePrescribe = async () => {
+  const submitPrescription = async (
+    values: CreatePrescriptionPayload,
+    overrideReason?: string,
+  ) => {
+    setSubmitting(true);
     try {
-      const values = await form.validateFields() as CreatePrescriptionPayload;
-      setSubmitting(true);
-      await createPrescription(encounterId, values);
+      await createPrescription(encounterId, { ...values, overrideReason });
       const med = medications.find((m) => m.id === values.medicationId);
       const label = med ? `${med.genericName} ${med.strength}` : "Drug";
       setOrders((prev) => [...prev, { label: `Rx · ${label}`, type: "rx" }]);
@@ -81,56 +123,87 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
       queryClient.invalidateQueries({ queryKey: ["prescriptions"] });
       form.resetFields();
       setModalOpen(false);
+      setAllergyAlert(null);
     } catch (err: unknown) {
-      const apiErr = err as {
-        response?: { data?: { message?: string | string[] } };
-        message?: string;
-      };
-      const msg = apiErr.response?.data?.message ?? apiErr.message ?? "Failed to prescribe";
-      message.error(Array.isArray(msg) ? msg.join(", ") : msg);
+      const apiErr = err as { message?: string };
+      const msg = apiErr.message ?? "Failed to prescribe";
+
+      // First attempt blocked by a drug allergy → open the override modal.
+      if (!overrideReason && /allergy alert/i.test(msg)) {
+        const med = medications.find((m) => m.id === values.medicationId);
+        const drug = med ? med.genericName : "Selected drug";
+        const allergen =
+          msg.match(/allergy alert:\s*([^.]+)\./i)?.[1]?.trim() ??
+          "a recorded allergy";
+        setModalOpen(false);
+        setAllergyAlert({ drug, allergen, values });
+        return;
+      }
+
+      if (overrideReason) setAllergyAlert(null);
+      message.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleOrderLabCBC = async () => {
-    const cbcTest = labTests.find((t) => t.code === "CBC");
-    if (!cbcTest) {
-      message.error("CBC lab test not found in master data.");
+  const handlePrescribe = async () => {
+    let values: CreatePrescriptionPayload;
+    try {
+      values = (await form.validateFields()) as CreatePrescriptionPayload;
+    } catch {
+      return; // field validation errors are shown inline
+    }
+    await submitPrescription(values);
+  };
+
+  const handleLabOrder = async () => {
+    let values: LabOrderFormValues;
+    try {
+      values = await labForm.validateFields();
+    } catch {
       return;
     }
-
     try {
       await createLabOrderMutation.mutateAsync({
-        labTestIds: [cbcTest.id],
-        priority: "ROUTINE",
+        labTestIds: values.labTestIds,
+        priority: values.priority,
+        clinicalNotes: values.clinicalNotes?.trim() || undefined,
       });
-      message.success("Lab order placed: CBC.");
+      const names = labTests
+        .filter((t) => values.labTestIds.includes(t.id))
+        .map((t) => t.name);
+      message.success(
+        `Lab order placed: ${names.join(", ") || values.labTestIds.length + " test(s)"}.`,
+      );
+      labForm.resetFields();
+      setLabModalOpen(false);
     } catch (err: unknown) {
-      const apiErr = err as {
-        response?: { data?: { message?: string | string[] } };
-        message?: string;
-      };
-      const msg = apiErr.response?.data?.message ?? apiErr.message ?? "Failed to order lab CBC";
-      message.error(Array.isArray(msg) ? msg.join(", ") : msg);
+      const apiErr = err as { message?: string };
+      message.error(apiErr.message ?? "Failed to place lab order");
     }
   };
 
-  const handleOrderXRay = async () => {
+  const handleMedicalOrder = async () => {
+    let values: MedicalOrderFormValues;
+    try {
+      values = await orderForm.validateFields();
+    } catch {
+      return;
+    }
     try {
       await createMedicalOrderMutation.mutateAsync({
-        orderType: "RADIOLOGY",
-        description: "Chest X-ray",
-        priority: "ROUTINE",
+        orderType: values.orderType,
+        description: values.description.trim(),
+        priority: values.priority,
+        notes: values.notes?.trim() || undefined,
       });
-      message.success("Radiology order placed: Chest X-ray.");
+      message.success(`Order placed: ${values.description.trim()}.`);
+      orderForm.resetFields();
+      setOrderModalOpen(false);
     } catch (err: unknown) {
-      const apiErr = err as {
-        response?: { data?: { message?: string | string[] } };
-        message?: string;
-      };
-      const msg = apiErr.response?.data?.message ?? apiErr.message ?? "Failed to order X-ray";
-      message.error(Array.isArray(msg) ? msg.join(", ") : msg);
+      const apiErr = err as { message?: string };
+      message.error(apiErr.message ?? "Failed to place order");
     }
   };
 
@@ -151,7 +224,8 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
 
   return (
     <Flex vertical gap={16}>
-      <Card size="small" title="New prescription">
+      {readOnly ? null : (
+      <Card size="small" title="New orders">
         <Space wrap>
           <Button
             type="primary"
@@ -162,19 +236,14 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
           </Button>
           <Button
             icon={<ExperimentOutlined />}
-            loading={createLabOrderMutation.isPending}
-            onClick={handleOrderLabCBC}
+            onClick={() => setLabModalOpen(true)}
           >
-            Order lab (CBC)
+            Order lab
           </Button>
-          <Button
-            loading={createMedicalOrderMutation.isPending}
-            onClick={handleOrderXRay}
-          >
-            Order X-ray
-          </Button>
+          <Button onClick={() => setOrderModalOpen(true)}>New order</Button>
         </Space>
       </Card>
+      )}
 
       <Card size="small" title={`Orders placed (${displayedOrders.length})`}>
         {displayedOrders.length === 0 ? (
@@ -258,10 +327,117 @@ export function OrdersPanel({ encounterId }: Readonly<{ encounterId: string }>) 
           </Form.Item>
 
           <Form.Item name="instructions" label="Instructions">
-            <Input.TextArea placeholder="Special instructions..." rows={2} />
+            <Input.TextArea placeholder="Special instructions (sig)..." rows={2} />
+          </Form.Item>
+
+          <Form.Item name="notes" label="Notes (optional)">
+            <Input.TextArea placeholder="Prescription-level note..." rows={2} />
           </Form.Item>
         </Form>
       </Modal>
+
+      <Modal
+        open={labModalOpen}
+        title="Order lab tests"
+        okText="Place order"
+        onOk={handleLabOrder}
+        onCancel={() => {
+          setLabModalOpen(false);
+          labForm.resetFields();
+        }}
+        confirmLoading={createLabOrderMutation.isPending}
+        width={500}
+      >
+        <Form
+          form={labForm}
+          layout="vertical"
+          initialValues={{ priority: "ROUTINE" }}
+          style={{ marginTop: 16 }}
+        >
+          <Form.Item
+            name="labTestIds"
+            label="Lab tests"
+            rules={[{ required: true, message: "Select at least one test" }]}
+          >
+            <Select
+              mode="multiple"
+              showSearch
+              loading={loadingLabTests}
+              placeholder="Search tests..."
+              optionFilterProp="label"
+              options={labTests.map((t) => ({
+                value: t.id,
+                label: `${t.name} (${t.code})`,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item name="priority" label="Priority">
+            <Select options={PRIORITY_OPTIONS} />
+          </Form.Item>
+          <Form.Item name="clinicalNotes" label="Clinical notes">
+            <Input.TextArea
+              rows={2}
+              placeholder="Indication / clinical context..."
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        open={orderModalOpen}
+        title="New order"
+        okText="Place order"
+        onOk={handleMedicalOrder}
+        onCancel={() => {
+          setOrderModalOpen(false);
+          orderForm.resetFields();
+        }}
+        confirmLoading={createMedicalOrderMutation.isPending}
+        width={500}
+      >
+        <Form
+          form={orderForm}
+          layout="vertical"
+          initialValues={{ orderType: "RADIOLOGY", priority: "ROUTINE" }}
+          style={{ marginTop: 16 }}
+        >
+          <Form.Item
+            name="orderType"
+            label="Order type"
+            rules={[{ required: true, message: "Select an order type" }]}
+          >
+            <Select options={ORDER_TYPE_OPTIONS} />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[{ required: true, message: "Enter the order description" }]}
+          >
+            <Input placeholder="e.g. Brain CT Scan (non-contrast)" />
+          </Form.Item>
+          <Form.Item name="priority" label="Priority">
+            <Select options={PRIORITY_OPTIONS} />
+          </Form.Item>
+          <Form.Item name="notes" label="Notes">
+            <Input.TextArea rows={2} placeholder="Reason / clinical context..." />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {allergyAlert ? (
+        <AllergyAlertModal
+          open
+          drug={allergyAlert.drug}
+          allergen={allergyAlert.allergen}
+          onOverride={(reason) =>
+            void submitPrescription(allergyAlert.values, reason)
+          }
+          onCancel={() => {
+            setAllergyAlert(null);
+            setModalOpen(true); // back to the form to change the drug
+          }}
+        />
+      ) : null}
     </Flex>
   );
 }

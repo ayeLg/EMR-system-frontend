@@ -1,6 +1,6 @@
 "use client";
 
-import { App, Button, Skeleton, Tabs, Tag } from "antd";
+import { Alert, App, Button, Skeleton, Tabs, Tag } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -22,6 +22,9 @@ export function EncounterDetailView({ id }: Readonly<{ id: string }>) {
 
   if (isLoading) return <Skeleton active paragraph={{ rows: 8 }} />;
   if (!data) return <EmptyState description="Encounter not found" />;
+
+  // Writes are only allowed while the encounter is OPEN (backend enforces this too).
+  const readOnly = data.status !== "OPEN";
 
   const complete = () =>
     modal.confirm({
@@ -64,26 +67,56 @@ export function EncounterDetailView({ id }: Readonly<{ id: string }>) {
 
       <EncounterContext detail={data} />
 
+      {readOnly ? (
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message={`This encounter is ${ENC_STATUS_META[data.status].label.toLowerCase()} and read-only.`}
+          description="Clinical entries can no longer be added or changed."
+        />
+      ) : null}
+
       <Tabs
         items={[
           {
             key: "soap",
             label: "SOAP note",
-            children: <SoapNote encounterId={id} />,
+            children: (
+              <SoapNote
+                encounterId={id}
+                notes={data.soapNotes}
+                readOnly={readOnly}
+              />
+            ),
           },
           {
             key: "vitals",
             label: "Vitals",
-            children: <VitalsPanel encounterId={id} vitals={data.vitals} />,
+            children: (
+              <VitalsPanel
+                encounterId={id}
+                vitals={data.vitals}
+                readOnly={readOnly}
+              />
+            ),
           },
           {
             key: "diagnoses",
             label: "Diagnoses",
             children: (
-              <DiagnosesPanel encounterId={id} initial={data.diagnoses} />
+              <DiagnosesPanel
+                encounterId={id}
+                initial={data.diagnoses}
+                readOnly={readOnly}
+              />
             ),
           },
-          { key: "orders", label: "Orders", children: <OrdersPanel encounterId={id} /> },
+          {
+            key: "orders",
+            label: "Orders",
+            children: <OrdersPanel encounterId={id} readOnly={readOnly} />,
+          },
         ]}
       />
     </>

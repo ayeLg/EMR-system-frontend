@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { TableProps } from "antd";
-import { App, Button, Col, Form, InputNumber, Modal, Row, Statistic } from "antd";
+import { App, Button, Col, Form, Input, InputNumber, Modal, Row, Statistic } from "antd";
 import { DataTable } from "@/components/common/DataTable";
 import { ContentCard } from "@/components/ui/ContentCard";
 import {
@@ -158,12 +158,22 @@ export function NurseQueue() {
                 <InputNumber min={0} max={10} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
+            <Col xs={12} md={12}>
+              <Form.Item name="bloodGlucose" label="Glucose mg/dL">
+                <InputNumber min={0} max={2000} step={0.1} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
             <Col xs={12} md={6}>
               <Form.Item label="BMI (auto)">
                 <Statistic
                   value={bmi ?? "-"}
                   styles={{ content: { fontSize: 20 } }}
                 />
+              </Form.Item>
+            </Col>
+            <Col xs={24}>
+              <Form.Item name="notes" label="Notes">
+                <Input.TextArea autoSize={{ minRows: 1, maxRows: 3 }} />
               </Form.Item>
             </Col>
           </Row>
