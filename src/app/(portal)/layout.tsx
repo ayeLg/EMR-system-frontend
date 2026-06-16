@@ -23,7 +23,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
       >
         <HeartFilled style={{ color: "#1677ff", fontSize: 20 }} />
         <Text strong style={{ fontSize: 16 }}>
-          Yangon EMR — Patient Portal
+          EMR — Patient Portal
         </Text>
       </header>
       <main style={{ maxWidth: 760, margin: "0 auto", padding: 20 }}>

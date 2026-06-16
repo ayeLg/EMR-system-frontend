@@ -18,7 +18,7 @@ const notoSansMyanmar = Noto_Sans_Myanmar({
 });
 
 export const metadata: Metadata = {
-  title: "Yangon EMR",
+  title: "EMR",
   description: "Electronic Medical Records system",
 };
 

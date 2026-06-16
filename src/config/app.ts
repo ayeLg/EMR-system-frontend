@@ -1,6 +1,6 @@
 /** App-wide constants. */
 export const APP = {
-  name: "Yangon EMR",
+  name: "EMR",
   shortName: "EMR",
   mobileBreakpoint: 768,
   sidebarWidth: 220,

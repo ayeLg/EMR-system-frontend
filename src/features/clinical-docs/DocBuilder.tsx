@@ -151,7 +151,7 @@ export function DocBuilder({
         >
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <Title level={5} style={{ margin: 0, color: "#1a3c6b" }}>
-              Yangon EMR Hospital
+              EMR Hospital
             </Title>
             <Text style={{ color: "#666" }}>No. 1, Pyay Road, Yangon · 01-555000</Text>
             <Title level={4} style={{ marginTop: 12, color: "#1e1e1e" }}>
