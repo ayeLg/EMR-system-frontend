@@ -116,7 +116,7 @@ export function DispenseModal({
               type="error"
               showIcon
               style={{ marginBottom: 12 }}
-              message="Dispensing Error"
+              title="Dispensing Error"
               description={error}
             />
           )}

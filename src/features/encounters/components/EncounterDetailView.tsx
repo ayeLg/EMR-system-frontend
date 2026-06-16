@@ -72,7 +72,7 @@ export function EncounterDetailView({ id }: Readonly<{ id: string }>) {
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
-          message={`This encounter is ${ENC_STATUS_META[data.status].label.toLowerCase()} and read-only.`}
+          title={`This encounter is ${ENC_STATUS_META[data.status].label.toLowerCase()} and read-only.`}
           description="Clinical entries can no longer be added or changed."
         />
       ) : null}

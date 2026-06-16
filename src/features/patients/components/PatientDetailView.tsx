@@ -96,7 +96,7 @@ export function PatientDetailView({ id }: { id: string }) {
             key: "allergies",
             label: `Allergies (${data.allergies.length})`,
             children: (
-              <Space direction="vertical" style={{ width: "100%" }} size={16}>
+              <Space orientation="vertical" style={{ width: "100%" }} size={16}>
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
                   <Button type="primary" onClick={() => setAllergyModalOpen(true)}>
                     Add Allergy
